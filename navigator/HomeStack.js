@@ -1,11 +1,12 @@
 import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import HomeScreen from "../screens/Home";
-import ProductScreen from "../screens/Product";
+import HomeScreen from "../screens/HomeScreen";
+import ProductScreen from "../screens/ProductScreen";
 import { Button } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import SearchResultsScreen from "../screens/SearchResultsScreen";
+import SearchScreen from "../screens/SearchScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -43,9 +44,27 @@ const HomeStack = ({ navigation }) => {
           component={ProductScreen}
           options={{
             title: "Product Details",
+            headerLeft: () => null,
           }}
         />
-        <Stack.Screen name="SearchResults" component={SearchResultsScreen} />
+        <Stack.Screen
+          name="Search"
+          component={SearchScreen} // Add Search screen to the stack
+          options={{
+            title: "Search",
+            headerLeft: () => null,
+
+            headerShown: false, // Hide the header for ProductScreen
+          }}
+        />
+        <Stack.Screen
+          name="SearchResults"
+          component={SearchResultsScreen}
+          options={{
+            // Ẩn nút menu drawer
+            headerLeft: () => null,
+          }}
+        />
       </Stack.Navigator>
     </>
   );

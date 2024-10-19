@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, Image, StyleSheet } from "react-native";
-import Banner from "../assets/banner1.jpg"; // Adjust the path if necessary
+import Banner from "../assets/images/banner1.jpg"; // Adjust the path if necessary
 
 const HeroSection = () => {
   return (

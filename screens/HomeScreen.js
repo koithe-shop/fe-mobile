@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import SearchBar from "../components/SearchBar";
 import HeroSection from "../components/HeroSection";
@@ -6,17 +6,14 @@ import KoiBreeds from "../components/KoiBreeds";
 import Blogs from "../components/Blogs";
 import News from "../components/News";
 import FAQs from "../components/FAQs";
-import SearchModal from "../components/SearchModal"; // Đảm bảo cập nhật đường dẫn đúng
 
 const HomeScreen = ({ navigation }) => {
-  const [modalVisible, setModalVisible] = useState(false);
-
   const handleCartPress = () => {
     navigation.navigate("Cart");
   };
 
   const handleSearchPress = () => {
-    setModalVisible(true); // Mở modal khi nhấn vào ô tìm kiếm
+    navigation.navigate("Search"); // Navigate to Search screen
   };
 
   return (
@@ -36,11 +33,6 @@ const HomeScreen = ({ navigation }) => {
           <FAQs />
         </View>
       </ScrollView>
-      <SearchModal
-        visible={modalVisible}
-        onClose={() => setModalVisible(false)}
-        navigation={navigation} // Pass navigation prop to SearchModal
-      />
     </View>
   );
 };

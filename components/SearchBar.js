@@ -11,6 +11,7 @@ const SearchBar = ({ onCartPress, onSearchPress }) => {
         style={styles.searchInput}
         clearButtonMode="always"
         onTouchStart={onSearchPress} // Mở modal khi chạm vào ô tìm kiếm
+        editable={false} // Disable typing so it acts like a button
       />
       <TouchableOpacity onPress={onCartPress} style={styles.cartButton}>
         <Icon name="shopping-cart" size={24} color="#000" />
