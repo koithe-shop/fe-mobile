@@ -43,7 +43,7 @@ const HomeStack = ({ navigation }) => {
           name="Product"
           component={ProductScreen}
           options={{
-            title: "Product Details",
+            title: "Product",
             headerLeft: () => null,
           }}
         />

@@ -1,10 +1,10 @@
 // SearchBar.js
 import React from "react";
 import { View, TextInput, StyleSheet, TouchableOpacity } from "react-native";
-import Icon from "react-native-vector-icons/MaterialIcons";
 import { useNavigation } from "@react-navigation/native"; // Import useNavigation
+import Filter from "./Filter";
 
-const SearchBar = () => {
+const SearchBarFilter = () => {
   const navigation = useNavigation(); // Get navigation object using the hook
 
   const handleCartPress = () => {
@@ -24,9 +24,7 @@ const SearchBar = () => {
         onTouchStart={handleSearchPress} // Mở modal khi chạm vào ô tìm kiếm
         editable={false} // Disable typing so it acts like a button
       />
-      <TouchableOpacity onPress={handleCartPress} style={styles.cartButton}>
-        <Icon name="shopping-cart" size={24} color="#000" />
-      </TouchableOpacity>
+      <Filter />
     </View>
   );
 };
@@ -34,7 +32,7 @@ const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginVertical: 10,
+    marginVertical: 5,
     marginHorizontal: 5,
     gap: 20,
     height: 40,
@@ -52,4 +50,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SearchBar;
+export default SearchBarFilter;
