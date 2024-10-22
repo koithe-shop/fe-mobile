@@ -7,6 +7,8 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import SearchResultsScreen from "../screens/SearchResultsScreen";
 import SearchScreen from "../screens/SearchScreen";
+import BreedScreen from "../screens/BreedScreen";
+import ProductDetailScreen from "../screens/ProductDetailScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -44,6 +46,22 @@ const HomeStack = ({ navigation }) => {
           component={ProductScreen}
           options={{
             title: "Product",
+            headerLeft: () => null,
+          }}
+        />
+        <Stack.Screen
+          name="ProductDetail"
+          component={ProductDetailScreen}
+          options={{
+            title: "Detail",
+            headerLeft: () => null,
+          }}
+        />
+        <Stack.Screen
+          name="Breed"
+          component={BreedScreen}
+          options={{
+            title: "Breed",
             headerLeft: () => null,
           }}
         />
