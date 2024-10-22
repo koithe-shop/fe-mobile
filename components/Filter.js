@@ -1,3 +1,4 @@
+// Filter.js
 import React, { useState, useRef } from "react";
 import {
   StyleSheet,
@@ -11,13 +12,13 @@ import {
 } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
-const BREEDS = ["Koi", "Goldfish", "Catfish", "Betta", "Tilapia"]; // Danh sách giống
+const BREEDS = ["Kohaku", "Utsuri", "Sanke", "Betta", "Tilapia"];
 const PRICE_OPTIONS = [
   { label: "Tăng dần", value: "asc" },
   { label: "Giảm dần", value: "desc" },
 ];
 
-export default function Filter() {
+export default function Filter({ onApplyFilters }) {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedBreeds, setSelectedBreeds] = useState([]);
   const [selectedPrice, setSelectedPrice] = useState(null);
@@ -49,8 +50,13 @@ export default function Filter() {
   };
 
   const applyFilters = () => {
-    console.log("Selected Breeds:", selectedBreeds);
-    console.log("Selected Price Order:", selectedPrice);
+    // Pass the selected filters back to the parent component
+    onApplyFilters({ selectedBreeds, selectedPrice });
+    closeModal();
+  };
+  const clearFilters = () => {
+    setSelectedPrice(null);
+    setSelectedBreeds([]);
     closeModal();
   };
 
@@ -103,21 +109,26 @@ export default function Filter() {
             <View>
               <Text style={styles.modalTitle}>Filter Options</Text>
 
-              <Text style={styles.sectionTitle}>Giống:</Text>
-              <View style={styles.breedList}>
-                {BREEDS.map(renderBreedItem)}
-              </View>
-
               <Text style={styles.sectionTitle}>Giá:</Text>
               <View style={styles.priceList}>
                 {PRICE_OPTIONS.map(renderPriceOption)}
               </View>
+
+              <Text style={styles.sectionTitle}>Giống:</Text>
+              <View style={styles.breedList}>
+                {BREEDS.map(renderBreedItem)}
+              </View>
             </View>
 
             <View style={styles.buttonContainer}>
-              <Pressable style={styles.applyButton} onPress={applyFilters}>
-                <Text style={styles.buttonText}>Apply</Text>
-              </Pressable>
+              <View style={styles.flexBetween}>
+                <Pressable style={styles.applyButton} onPress={applyFilters}>
+                  <Text style={styles.buttonText}>Apply</Text>
+                </Pressable>
+                <Pressable style={styles.clearButton} onPress={clearFilters}>
+                  <Text style={styles.buttonText}>Clear Filter</Text>
+                </Pressable>
+              </View>
               <Pressable style={styles.closeButton} onPress={closeModal}>
                 <Text style={styles.buttonText}>Close</Text>
               </Pressable>
@@ -189,13 +200,19 @@ const styles = StyleSheet.create({
     margin: 5, // Khoảng cách giữa các hộp
   },
   selectedOption: {
-    backgroundColor: "#d9edf7",
+    backgroundColor: "#dad9ed",
   },
   optionText: {
     fontSize: 16,
     color: "#333", // Màu chữ
   },
   buttonContainer: {
+    // flexDirection: "column",
+    // justifyContent: "space-between",
+    gap: 10,
+    width: "100%",
+  },
+  flexBetween: {
     flexDirection: "row",
     justifyContent: "space-between",
     width: "100%",
@@ -207,11 +224,18 @@ const styles = StyleSheet.create({
     width: "48%",
     alignItems: "center",
   },
-  closeButton: {
-    backgroundColor: "#ccc",
+  clearButton: {
+    backgroundColor: "#8a8a8a",
     padding: 10,
     borderRadius: 5,
     width: "48%",
+    alignItems: "center",
+  },
+  closeButton: {
+    backgroundColor: "#333",
+    padding: 10,
+    borderRadius: 5,
+    width: "100%",
     alignItems: "center",
   },
   buttonText: {

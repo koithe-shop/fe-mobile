@@ -1,9 +1,16 @@
 // components/Product.js
 
+import dayjs from "dayjs";
 import React from "react";
 import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
 
 const Product = ({ item }) => {
+  const formattedDate = dayjs(item.dateAdded).format("DD/MM/YY");
+  const formattedPrice = new Intl.NumberFormat("vi-VN", {
+    style: "currency",
+    currency: "VND",
+  }).format(item.price);
+
   return (
     <TouchableOpacity style={styles.productCard}>
       <Image source={{ uri: item.imageUrl }} style={styles.productImage} />
@@ -16,12 +23,13 @@ const Product = ({ item }) => {
           >
             {item.name}
           </Text>
-          <Text style={styles.breed}>Breed: {item.breed}</Text>
-          <Text style={styles.dateAdded}> {item.dateAdded}</Text>
-          <Text style={styles.productPrice}> ${item.price}</Text>
-        </View>
-        <View style={styles.addToCartButton}>
-          <Text style={styles.buttonText}>Add to Cart</Text>
+          <Text numberOfLines={1} ellipsizeMode="tail" style={styles.breed}>
+            ({item.breed})
+          </Text>
+          <View style={styles.flexBetween}>
+            <Text style={styles.dateAdded}> {formattedDate}</Text>
+            <Text style={styles.productPrice}> ${formattedPrice}</Text>
+          </View>
         </View>
       </View>
     </TouchableOpacity>
@@ -41,6 +49,11 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.5,
+  },
+  flexBetween: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
 
   productImage: {
@@ -66,7 +79,7 @@ const styles = StyleSheet.create({
   },
   breed: {
     fontSize: 14, // Increased font size
-    color: "#777",
+    color: "#000",
     marginVertical: 5,
   },
   addToCartButton: {

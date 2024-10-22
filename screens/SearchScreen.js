@@ -149,12 +149,13 @@ const styles = StyleSheet.create({
     borderColor: "gray",
     borderWidth: 1,
     marginHorizontal: 10,
-    paddingHorizontal: 10,
+    paddingHorizontal: 20,
+    paddingVertical: 20,
     borderRadius: 20,
     width: "100%",
   },
   historyList: {
-    marginTop: 5,
+    // marginTop: 5,
   },
 
   historyItemContainer: {
