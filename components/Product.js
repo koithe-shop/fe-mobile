@@ -1,5 +1,6 @@
 // components/Product.js
 
+import { useNavigation } from "@react-navigation/native";
 import dayjs from "dayjs";
 import React from "react";
 import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
@@ -11,8 +12,12 @@ const Product = ({ item }) => {
     currency: "VND",
   }).format(item.price);
 
+  const navigation = useNavigation();
+  const handlePress = () => {
+    navigation.navigate("ProductDetail", { product: item });
+  };
   return (
-    <TouchableOpacity style={styles.productCard}>
+    <TouchableOpacity style={styles.productCard} onPress={handlePress}>
       <Image source={{ uri: item.imageUrl }} style={styles.productImage} />
       <View style={styles.informationContainer}>
         <View>

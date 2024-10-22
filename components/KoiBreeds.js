@@ -49,7 +49,7 @@ const KoiBreeds = ({ navigation }) => {
         <Text style={styles.sectionTitle}>Giống Cá Koi Phổ Biến</Text>
 
         <Pressable
-          onPress={() => navigation.navigate("AllBreeds")}
+          onPress={() => navigation.navigate("Breed")}
           style={styles.viewMoreContainer}
         >
           <Text style={styles.viewMore}>Xem tất cả</Text>
