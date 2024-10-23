@@ -9,6 +9,7 @@ import SearchResultsScreen from "../screens/SearchResultsScreen";
 import SearchScreen from "../screens/SearchScreen";
 import BreedScreen from "../screens/BreedScreen";
 import ProductDetailScreen from "../screens/ProductDetailScreen";
+import BreedDetail from "../screens/BreedDetail";
 
 const Stack = createNativeStackNavigator();
 
@@ -57,6 +58,7 @@ const HomeStack = ({ navigation }) => {
             headerLeft: () => null,
           }}
         />
+
         <Stack.Screen
           name="Breed"
           component={BreedScreen}
@@ -66,8 +68,16 @@ const HomeStack = ({ navigation }) => {
           }}
         />
         <Stack.Screen
+          name="BreedDetail"
+          component={BreedDetail}
+          options={{
+            title: "Breed Detail",
+            headerLeft: () => null,
+          }}
+        />
+        <Stack.Screen
           name="Search"
-          component={SearchScreen} // Add Search screen to the stack
+          component={SearchScreen}
           options={{
             title: "Search",
             headerLeft: () => null,
