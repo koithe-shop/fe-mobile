@@ -44,6 +44,7 @@ const Product = ({ item }) => {
 const styles = StyleSheet.create({
   productCard: {
     backgroundColor: "#f9f9f9",
+    marginVertical: 10,
     padding: 2,
     borderRadius: 10,
     width: "48%", // Adjusted for two-column layout
