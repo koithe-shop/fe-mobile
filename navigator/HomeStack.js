@@ -63,7 +63,8 @@ const HomeStack = ({ navigation }) => {
           name="Cart"
           component={CartScreen}
           options={{
-            headerShown: false,
+            title: "Giỏ hàng",
+            // headerShown: false,
           }}
         />
         <Stack.Screen
