@@ -10,6 +10,8 @@ import SearchScreen from "../screens/SearchScreen";
 import BreedScreen from "../screens/BreedScreen";
 import ProductDetailScreen from "../screens/ProductDetailScreen";
 import BreedDetail from "../screens/BreedDetail";
+import CartScreen from "../screens/CartScreen";
+import CheckoutScreen from "../screens/CheckoutScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -54,8 +56,21 @@ const HomeStack = ({ navigation }) => {
           name="ProductDetail"
           component={ProductDetailScreen}
           options={{
-            title: "Detail",
-            headerLeft: () => null,
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="Cart"
+          component={CartScreen}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="Checkout"
+          component={CheckoutScreen}
+          options={{
+            headerShown: false,
           }}
         />
 
