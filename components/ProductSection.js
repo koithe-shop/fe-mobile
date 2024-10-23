@@ -47,7 +47,7 @@ const KoiFish = ({ navigation }) => {
   const renderItem = ({ item }) => (
     <Pressable
       style={styles.fishCard}
-      onPress={() => navigation.navigate("FishDetail", { fish: item })}
+      onPress={() => navigation.navigate("ProductDetail", { fish: item })}
     >
       {/* <TouchableOpacity
         style={styles.heartIcon}
