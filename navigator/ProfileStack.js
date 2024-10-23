@@ -1,7 +1,8 @@
 import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import ProfileScreen from "../screens/ProfileScreen";
-import { Button } from "react-native";
+import Icon from "react-native-vector-icons/MaterialIcons";
+import { TouchableOpacity } from "react-native";
 
 const Stack = createNativeStackNavigator();
 
@@ -10,7 +11,7 @@ const ProfileStack = ({ navigation }) => {
     <Stack.Navigator
       initialRouteName="Profile"
       screenOptions={{
-        headerStyle: { backgroundColor: "#4a90e2" },
+        headerStyle: { backgroundColor: "#272d2b" },
         headerTintColor: "#fff",
       }}
     >
@@ -20,11 +21,12 @@ const ProfileStack = ({ navigation }) => {
         options={{
           title: "Profile",
           headerLeft: () => (
-            <Button
-              title="Menu"
-              onPress={() => navigation.openDrawer()} // Hiển thị nút mở Drawer
-              color="#fff"
-            />
+            <TouchableOpacity
+              onPress={() => navigation.openDrawer()}
+              style={{ padding: 10 }}
+            >
+              <Icon name="menu" size={24} color="#fff" />
+            </TouchableOpacity>
           ),
         }}
       />

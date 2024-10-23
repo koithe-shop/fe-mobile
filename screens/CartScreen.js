@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -35,6 +35,15 @@ const CartScreen = ({ navigation }) => {
   ]);
   const [selectedVoucher, setSelectedVoucher] = useState(null);
 
+  useEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <TouchableOpacity onPress={() => setIsEditing(!isEditing)}>
+          <Text style={styles.editButton}>{isEditing ? "Xong" : "Sửa"}</Text>
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation, isEditing]);
   const toggleItemSelection = (itemId) => {
     if (selectedItems.includes(itemId)) {
       setSelectedItems(selectedItems.filter((id) => id !== itemId));
@@ -215,10 +224,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
+    // marginVertical: 20,
+    paddingTop: 30,
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
     padding: 16,
     borderBottomWidth: 1,
     borderBottomColor: "#eee",
