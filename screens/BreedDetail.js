@@ -1,4 +1,11 @@
-import { StyleSheet, Text, View, Image, FlatList } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  FlatList,
+  SafeAreaView,
+} from "react-native";
 import React, { useState } from "react";
 import { SceneMap, TabBar, TabView } from "react-native-tab-view";
 import Product from "../components/Product";
@@ -74,7 +81,7 @@ export default function BreedDetail() {
   );
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View>
         <Image
           style={styles.headerImage}
@@ -92,7 +99,7 @@ export default function BreedDetail() {
         initialLayout={{ width: "100%" }}
         renderTabBar={renderTabBar}
       />
-    </View>
+    </SafeAreaView>
   );
 }
 

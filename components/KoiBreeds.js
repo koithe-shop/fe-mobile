@@ -77,7 +77,7 @@ const KoiBreeds = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  section: { marginBottom: 20 },
+  section: { marginBottom: 20, padding: 10 },
   flexJusSpace: {
     justifyContent: "space-between",
     flexDirection: "row",
