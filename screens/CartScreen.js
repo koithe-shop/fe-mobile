@@ -103,7 +103,7 @@ const CartScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
+      {/* <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <MaterialIcons name="arrow-back" size={24} color="#000" />
         </TouchableOpacity>
@@ -111,7 +111,7 @@ const CartScreen = ({ navigation }) => {
         <TouchableOpacity onPress={() => setIsEditing(!isEditing)}>
           <Text style={styles.editButton}>{isEditing ? "Xong" : "Sửa"}</Text>
         </TouchableOpacity>
-      </View>
+      </View> */}
 
       <ScrollView style={styles.cartContent}>
         {cartItems.map((item) => (

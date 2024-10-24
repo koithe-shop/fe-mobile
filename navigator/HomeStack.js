@@ -56,7 +56,8 @@ const HomeStack = ({ navigation }) => {
           name="ProductDetail"
           component={ProductDetailScreen}
           options={{
-            headerShown: false,
+            // headerShown: false,
+            title: "Detail",
           }}
         />
         <Stack.Screen
@@ -71,7 +72,8 @@ const HomeStack = ({ navigation }) => {
           name="Checkout"
           component={CheckoutScreen}
           options={{
-            headerShown: false,
+            title: "Check out",
+            // headerShown: false,
           }}
         />
 

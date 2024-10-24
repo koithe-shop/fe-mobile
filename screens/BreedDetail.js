@@ -2,6 +2,7 @@ import { StyleSheet, Text, View, Image, FlatList } from "react-native";
 import React, { useState } from "react";
 import { SceneMap, TabBar, TabView } from "react-native-tab-view";
 import Product from "../components/Product";
+import RatingList from "../components/RatingList";
 
 const products = [
   {
@@ -49,17 +50,7 @@ const ProductRoute = () => (
   />
 );
 
-const RatingRoute = () => (
-  <FlatList
-    data={ratings}
-    keyExtractor={(item) => item.id}
-    renderItem={({ item }) => (
-      <View style={styles.ratingCard}>
-        <Text>{`⭐️ ${item.star} - ${item.comment}`}</Text>
-      </View>
-    )}
-  />
-);
+const RatingRoute = () => <RatingList item={ratings} />;
 
 export default function BreedDetail() {
   const [index, setIndex] = useState(0);
