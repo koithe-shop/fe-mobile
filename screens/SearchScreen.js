@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Keyboard,
   TouchableOpacity,
+  SafeAreaView,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Icon from "react-native-vector-icons/MaterialIcons";
@@ -43,6 +44,9 @@ const SearchScreen = ({ navigation }) => {
   };
 
   const handleSearch = () => {
+    if (!searchText) {
+      console.log("Nosearch");
+    }
     if (searchText) {
       Keyboard.dismiss();
       saveHistory(searchText);
@@ -81,7 +85,7 @@ const SearchScreen = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.searchContainer}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Icon name="arrow-back" size={24} color="#000" />
@@ -126,7 +130,7 @@ const SearchScreen = ({ navigation }) => {
         style={styles.historyList}
         contentContainerStyle={styles.historyListContent}
       />
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -138,21 +142,23 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   searchContainer: {
+    paddingHorizontal: 10,
     width: "100%",
     flexDirection: "row",
     alignItems: "center",
     marginVertical: 10,
   },
   searchInput: {
-    height: 40,
+    // height: 40,
     flex: 1,
+    // color: "#000",
     borderColor: "gray",
     borderWidth: 1,
     marginHorizontal: 10,
     paddingHorizontal: 20,
-    paddingVertical: 20,
+    paddingVertical: 10,
     borderRadius: 20,
-    width: "100%",
+    // width: "100%",
   },
   historyList: {
     // marginTop: 5,

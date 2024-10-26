@@ -5,6 +5,7 @@ import {
   FlatList,
   Text,
   ActivityIndicator,
+  SafeAreaView,
 } from "react-native";
 import SearchBarFilter from "../components/SearchBarFilter";
 import Product from "../components/Product";
@@ -87,10 +88,6 @@ const ProductScreen = ({ route, navigation }) => {
     },
   ];
 
-  const handleBackPress = () => {
-    navigation.goBack();
-  };
-
   const sortedProducts = [...products]
     .sort((a, b) => new Date(b.dateAdded) - new Date(a.dateAdded))
     .filter(
@@ -142,12 +139,12 @@ const ProductScreen = ({ route, navigation }) => {
       setShowEndMessage(true); // Show the end message
       setTimeout(() => {
         setShowEndMessage(false); // Hide the end message after 5 seconds
-      }, 5000);
+      }, 1000);
     }
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <SearchBarFilter
         onApplyFilters={handleApplyFilters}
         searchText={searchText}
@@ -178,7 +175,7 @@ const ProductScreen = ({ route, navigation }) => {
       {showEndMessage && (
         <Text style={styles.endMessage}>---Đã đến cuối danh sách---</Text>
       )}
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -189,8 +186,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   productList: {
-    paddingBottom: 50,
-    marginTop: 20,
+    paddingBottom: 10,
+    marginTop: 10,
     justifyContent: "space-between",
   },
   emptyContainer: {
@@ -205,7 +202,7 @@ const styles = StyleSheet.create({
   endMessage: {
     textAlign: "center",
     marginTop: 10,
-    marginBottom: 20,
+    // marginBottom: 20,
     fontSize: 16,
     color: "#999",
   },

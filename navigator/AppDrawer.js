@@ -16,6 +16,7 @@ import {
   StatusBar,
   Alert, // Nhập Alert
 } from "react-native";
+import ConsignmentStack from "./ConsignmentStack";
 
 const Drawer = createDrawerNavigator();
 
@@ -107,17 +108,22 @@ const AppDrawer = () => {
         <Drawer.Screen
           name="HomeStack"
           component={HomeStack}
-          options={{ title: "Home" }}
+          options={{ title: "Trang chủ" }}
         />
         <Drawer.Screen
           name="ProfileStack"
           component={ProfileStack}
-          options={{ title: "Profile" }}
+          options={{ title: "Hồ sơ " }}
         />
         <Drawer.Screen
           name="OrderStack"
           component={OrderStack}
-          options={{ title: "Order" }}
+          options={{ title: "Đơn hàng" }}
+        />
+        <Drawer.Screen
+          name="ConsignmentStack"
+          component={ConsignmentStack}
+          options={{ title: "Ký gửi" }}
         />
       </Drawer.Navigator>
     </>

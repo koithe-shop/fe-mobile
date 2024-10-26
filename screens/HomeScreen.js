@@ -1,5 +1,5 @@
 import React from "react";
-import { FlatList, View, StyleSheet } from "react-native";
+import { FlatList, View, StyleSheet, SafeAreaView } from "react-native";
 import SearchBar from "../components/SearchBar";
 import HeroSection from "../components/HeroSection";
 import KoiBreeds from "../components/KoiBreeds";
@@ -24,7 +24,7 @@ const HomeScreen = ({ navigation }) => {
   ];
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.fixedSearchBar}>
         <SearchBar />
       </View>
@@ -34,7 +34,7 @@ const HomeScreen = ({ navigation }) => {
         keyExtractor={(item) => item.key}
         showsVerticalScrollIndicator={false}
       />
-    </View>
+    </SafeAreaView>
   );
 };
 
