@@ -9,14 +9,15 @@ import {
   Alert,
   ImageBackground,
 } from "react-native";
+import { login } from "../api/user/userApi"; // Import hàm login từ file api
+import { API_URL } from "@env";
 
 const LoginScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = () => {
-    // Kiểm tra nếu tên đăng nhập hoặc mật khẩu bị bỏ trống
+  const handleLogin = async () => {
     if (!username || !password) {
       Alert.alert(
         "Lỗi đăng nhập",
@@ -25,29 +26,33 @@ const LoginScreen = ({ navigation }) => {
       return;
     }
 
-    setLoading(true);
+    setLoading(true); // Kích hoạt trạng thái tải
+    try {
+      const data = await login(username, password); // Gọi hàm login từ api
 
-    const validUsername = "admin";
-    const validPassword = "123";
-
-    setTimeout(() => {
-      setLoading(false);
-      if (username === validUsername && password === validPassword) {
-        navigation.replace("AppDrawer");
+      // Kiểm tra xem có thành công không
+      if (data) {
+        console.log("Login successful:", data);
+        // navigation.replace("AppDrawer"); // Chuyển hướng sau khi đăng nhập thành công
       } else {
-        Alert.alert(
-          "Đăng nhập thất bại",
-          "Tên đăng nhập hoặc mật khẩu không đúng"
-        );
+        Alert.alert("Đăng nhập thất bại", data.message);
         setUsername("");
         setPassword("");
       }
-    }, 1500);
+    } catch (error) {
+      console.error("Error logging in:", error);
+      Alert.alert(
+        "Đăng nhập thất bại",
+        error.message || "Có lỗi xảy ra, vui lòng thử lại sau."
+      );
+    } finally {
+      setLoading(false); // Tắt trạng thái tải
+    }
   };
 
   return (
     <ImageBackground
-      source={require("../assets/images/background-login.webp")} // Đường dẫn ảnh nền
+      source={require("../assets/images/background-login.webp")}
       style={styles.background}
     >
       <View style={styles.overlay}>
@@ -89,6 +94,8 @@ const LoginScreen = ({ navigation }) => {
     </ImageBackground>
   );
 };
+
+export default LoginScreen;
 
 const styles = StyleSheet.create({
   background: {
@@ -173,5 +180,3 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
 });
-
-export default LoginScreen;

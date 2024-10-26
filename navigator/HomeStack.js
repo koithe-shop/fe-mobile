@@ -9,7 +9,7 @@ import SearchResultsScreen from "../screens/SearchResultsScreen";
 import SearchScreen from "../screens/SearchScreen";
 import BreedScreen from "../screens/BreedScreen";
 import ProductDetailScreen from "../screens/ProductDetailScreen";
-import BreedDetail from "../screens/BreedDetail";
+import BreedDetailScreen from "../screens/BreedDetailScreen";
 import CartScreen from "../screens/CartScreen";
 import CheckoutScreen from "../screens/CheckoutScreen";
 
@@ -87,7 +87,7 @@ const HomeStack = ({ navigation }) => {
         />
         <Stack.Screen
           name="BreedDetail"
-          component={BreedDetail}
+          component={BreedDetailScreen}
           options={{
             title: "Breed Detail",
             headerLeft: () => null,

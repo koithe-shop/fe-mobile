@@ -14,6 +14,7 @@ const AppStack = () => {
       <StatusBar animated={true} />
       <Stack.Navigator
         initialRouteName="Login"
+        // initialRouteName="AppDrawer"
         screenOptions={{ gestureEnabled: false }} // Tắt vuốt trái phải
       >
         <Stack.Screen
