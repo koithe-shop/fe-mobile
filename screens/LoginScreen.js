@@ -11,6 +11,8 @@ import {
 } from "react-native";
 import { login } from "../api/user/userApi"; // Import hàm login từ file api
 import { API_URL } from "@env";
+import { jwtDecode } from "jwt-decode";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const LoginScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
@@ -26,27 +28,36 @@ const LoginScreen = ({ navigation }) => {
       return;
     }
 
-    setLoading(true); // Kích hoạt trạng thái tải
+    setLoading(true);
     try {
-      const data = await login(username, password); // Gọi hàm login từ api
+      const data = await login(username, password);
 
       // Kiểm tra xem có thành công không
-      if (data) {
-        console.log("Login successful:", data);
-        // navigation.replace("AppDrawer"); // Chuyển hướng sau khi đăng nhập thành công
+      if (data && data.token) {
+        const decodedToken = jwtDecode(data.token); // Decode the token
+        console.log("Decoded token:", decodedToken);
+        console.log(decodedToken.userId);
+
+        // Save the decoded token data in AsyncStorage
+        await AsyncStorage.setItem("userInfo", JSON.stringify(decodedToken));
+        await AsyncStorage.setItem("userToken", data.token);
+        await AsyncStorage.setItem("userId", decodedToken.userId);
+
+        // console.log("Login successful:", data);
+        navigation.replace("AppDrawer"); // Navigate after successful login
       } else {
         Alert.alert("Đăng nhập thất bại", data.message);
         setUsername("");
         setPassword("");
       }
     } catch (error) {
-      console.error("Error logging in:", error);
+      // console.error("Error logging in:", error);
       Alert.alert(
         "Đăng nhập thất bại",
         error.message || "Có lỗi xảy ra, vui lòng thử lại sau."
       );
     } finally {
-      setLoading(false); // Tắt trạng thái tải
+      setLoading(false);
     }
   };
 
