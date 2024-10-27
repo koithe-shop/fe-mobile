@@ -11,57 +11,19 @@ import {
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import AntDesign from "@expo/vector-icons/AntDesign";
 
-const KoiFish = ({ navigation }) => {
-  // const [wishlist, setWishlist] = useState([]);
-
-  const koiFish = [
-    {
-      id: "1",
-      name: "Kohaku KohakuKohakuKohaku",
-      image:
-        "https://file.hstatic.net/200000573099/file/thiet_ke_chua_co_ten__65__26169d23c20046ea8754593ffb1b3a9b_grande.png",
-      price: "5,000,000 VND",
-    },
-    {
-      id: "2",
-      name: "Sanke",
-      image:
-        "https://file.hstatic.net/200000573099/file/thiet_ke_chua_co_ten__66__a862d072cefe43afacd7702dd35a4c36_grande.png",
-      price: "7,000,000 VND",
-    },
-    {
-      id: "3",
-      name: "Showa",
-      image:
-        "https://file.hstatic.net/200000573099/file/thiet_ke_chua_co_ten__67__2ec4d4b8616347d7b2cf1302d79e421c_grande.png",
-      price: "6,500,000 VND",
-    },
-  ];
-
-  // const toggleWishlist = (id) => {
-  //   setWishlist((prev) =>
-  //     prev.includes(id) ? prev.filter((fishId) => fishId !== id) : [...prev, id]
-  //   );
-  // };
-
+const KoiFish = ({ navigation, products }) => {
   const renderItem = ({ item }) => (
     <Pressable
       style={styles.fishCard}
       onPress={() => navigation.navigate("ProductDetail", { fish: item })}
     >
-      {/* <TouchableOpacity
-        style={styles.heartIcon}
-        onPress={() => toggleWishlist(item.id)}
-      >
-        <AntDesign
-          name="heart"
-          size={20}
-          color={wishlist.includes(item.id) ? "red" : "black"}
-        />
-      </TouchableOpacity> */}
-      <Image source={{ uri: item.image }} style={styles.fishImage} />
+      <Image
+        source={{ uri: item.image[0] }}
+        accessibilityLabel={`Image of ${item.productName}`}
+        style={styles.fishImage}
+      />
       <Text style={styles.fishName} numberOfLines={1} ellipsizeMode="tail">
-        {item.name}
+        {item.productName}
       </Text>
       <Text style={styles.fishPrice}>{item.price}</Text>
     </Pressable>
@@ -85,9 +47,9 @@ const KoiFish = ({ navigation }) => {
       </View>
 
       <FlatList
-        data={koiFish}
+        data={products}
         renderItem={renderItem}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item._id}
         numColumns={2}
         showsVerticalScrollIndicator={false}
         columnWrapperStyle={styles.row}

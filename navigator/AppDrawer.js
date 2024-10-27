@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import HomeStack from "./HomeStack";
 import ProfileStack from "./ProfileStack";
@@ -17,10 +17,27 @@ import {
   Alert, // Nhập Alert
 } from "react-native";
 import ConsignmentStack from "./ConsignmentStack";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Drawer = createDrawerNavigator();
 
 const CustomDrawerContent = (props) => {
+  const [userInfo, setUserInfo] = useState(null);
+  useEffect(() => {
+    const loadUserInfo = async () => {
+      try {
+        const storedUserInfo = await AsyncStorage.getItem("userInfo");
+        if (storedUserInfo) {
+          setUserInfo(JSON.parse(storedUserInfo));
+        }
+      } catch (error) {
+        console.error("Failed to load user info:", error);
+      }
+    };
+
+    loadUserInfo();
+  }, []);
+
   const handleLogout = () => {
     Alert.alert(
       "Xác nhận đăng xuất",
@@ -33,9 +50,21 @@ const CustomDrawerContent = (props) => {
         },
         {
           text: "Đăng xuất",
-          onPress: () => {
-            console.log("Logout pressed");
-            props.navigation.navigate("Login"); // Điều hướng về trang Login
+          onPress: async () => {
+            try {
+              // Clear token and user info from AsyncStorage
+              await AsyncStorage.removeItem("userToken");
+              await AsyncStorage.removeItem("userInfo");
+              await AsyncStorage.removeItem("userId");
+
+              // Reset userInfo state
+              setUserInfo(null);
+
+              // Navigate to Login screen
+              props.navigation.navigate("Login");
+            } catch (error) {
+              console.error("Error during logout:", error);
+            }
           },
         },
       ],
@@ -57,7 +86,7 @@ const CustomDrawerContent = (props) => {
             }}
             style={styles.avatar}
           />
-          <Text style={styles.userName}>Hello, User</Text>
+          <Text style={styles.userName}>Hello, {userInfo?.fullName}</Text>
         </View>
         <View style={styles.body}>
           <DrawerItemList {...props} />

@@ -6,50 +6,31 @@ import {
   FlatList,
   Pressable,
 } from "react-native";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useNavigation } from "@react-navigation/native";
-
-const koiBreeds = [
-  {
-    name: "Kohaku",
-    image:
-      "https://file.hstatic.net/200000573099/file/thiet_ke_chua_co_ten__65__26169d23c20046ea8754593ffb1b3a9b_grande.png",
-    rating: 4.5,
-  },
-  {
-    name: "Sanke",
-    image:
-      "https://file.hstatic.net/200000573099/file/thiet_ke_chua_co_ten__66__a862d072cefe43afacd7702dd35a4c36_grande.png",
-    rating: 4.2,
-  },
-  {
-    name: "Showa",
-    image:
-      "https://file.hstatic.net/200000573099/file/thiet_ke_chua_co_ten__67__2ec4d4b8616347d7b2cf1302d79e421c_grande.png",
-    rating: 1.2,
-  },
-  {
-    name: "Shusui",
-    image:
-      "https://file.hstatic.net/200000573099/file/thiet_ke_chua_co_ten__72__87698067ae324bae84572162553d8183_grande.png",
-    rating: 4.8,
-  },
-  {
-    name: "Utsuri",
-    image:
-      "https://file.hstatic.net/200000573099/file/thiet_ke_chua_co_ten__74__751852fb25374c3eb9284c8fdb9cc663_grande.png",
-    rating: 4.3,
-  },
-  {
-    name: "Tancho",
-    image:
-      "https://file.hstatic.net/200000573099/file/thiet_ke_chua_co_ten__73__375905fbe0534601b5a50f83f87af0e6_grande.png",
-    rating: 4,
-  },
-];
+import { getAllCategory } from "../api/categoryApi";
 
 const BreedScreen = () => {
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const data = await getAllCategory();
+        setCategories(data);
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
   const navigation = useNavigation();
 
   const renderStars = (rating) => {
@@ -89,8 +70,8 @@ const BreedScreen = () => {
     <Pressable onPress={handlePress} style={styles.breedCard}>
       <Image source={{ uri: item.image }} style={styles.breedImage} />
       <View style={styles.flexBetween}>
-        <Text style={styles.breedName}>{item.name}</Text>
-        <View style={styles.ratingContainer}>{renderStars(item.rating)}</View>
+        <Text style={styles.breedName}>{item.categoryName}</Text>
+        {/* <View style={styles.ratingContainer}>{renderStars(item.rating)}</View> */}
       </View>
     </Pressable>
   );
@@ -98,9 +79,9 @@ const BreedScreen = () => {
   return (
     <View style={styles.container}>
       <FlatList
-        data={koiBreeds}
+        data={categories}
         renderItem={renderBreedItem}
-        keyExtractor={(item) => item.name}
+        keyExtractor={(item) => item?._id}
         numColumns={1}
         showsVerticalScrollIndicator={false}
       />

@@ -15,11 +15,38 @@ export const login = async (username, password) => {
       const errorData = await response.json();
       throw new Error(errorData.message || "Đăng nhập không thành công");
     }
+    // const text = await response.text();
+    // console.log("Response text:", text);
+    // return JSON.parse(text); // If it’s JSON, this will work; otherwise, it will throw an error
 
     const data = await response.json();
     return data; // Trả về dữ liệu từ server
   } catch (error) {
     throw error; // Ném lỗi để xử lý bên ngoài
+  }
+};
+
+export const register = async (userData) => {
+  try {
+    const response = await fetch(`${API_URL}/users`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(userData),
+    });
+
+    if (!response.ok) {
+      // Handle server errors
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Đăng ký thất bại");
+    }
+
+    // Return the response data if successful
+    return await response.json();
+  } catch (error) {
+    console.error("Register error:", error);
+    throw error;
   }
 };
 

@@ -1,25 +1,53 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { FlatList, View, StyleSheet, SafeAreaView } from "react-native";
 import SearchBar from "../components/SearchBar";
 import HeroSection from "../components/HeroSection";
 import KoiBreeds from "../components/KoiBreeds";
 import ProductSection from "../components/ProductSection";
+import { getAllCategory } from "../api/categoryApi";
+import { getAllProduct } from "../api/productApi";
 
 const HomeScreen = ({ navigation }) => {
-  const handleCartPress = () => {
-    navigation.navigate("Cart");
-  };
+  const [categories, setCategories] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const handleSearchPress = () => {
-    navigation.navigate("Search");
-  };
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const data = await getAllCategory();
+        setCategories(data);
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    const fetchProducts = async () => {
+      try {
+        const data = await getAllProduct();
+        setProducts(data);
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
+    fetchProducts();
+  }, []);
 
   const sections = [
     { key: "hero", component: <HeroSection /> },
-    { key: "koiBreeds", component: <KoiBreeds navigation={navigation} /> },
+    {
+      key: "koiBreeds",
+      component: <KoiBreeds categories={categories} navigation={navigation} />,
+    },
     {
       key: "productSection",
-      component: <ProductSection navigation={navigation} />,
+      component: <ProductSection products={products} navigation={navigation} />,
     },
   ];
 

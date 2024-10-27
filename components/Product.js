@@ -18,7 +18,7 @@ const Product = ({ item }) => {
   };
   return (
     <TouchableOpacity style={styles.productCard} onPress={handlePress}>
-      <Image source={{ uri: item.imageUrl }} style={styles.productImage} />
+      <Image source={{ uri: item.image[0] }} style={styles.productImage} />
       <View style={styles.informationContainer}>
         <View>
           <Text
@@ -26,10 +26,10 @@ const Product = ({ item }) => {
             ellipsizeMode="tail"
             style={styles.productName}
           >
-            {item.name}
+            {item.productName}
           </Text>
           <Text numberOfLines={1} ellipsizeMode="tail" style={styles.breed}>
-            ({item.breed})
+            ({item?.categoryId?.categoryName})
           </Text>
           <View style={styles.flexBetween}>
             <Text style={styles.dateAdded}> {formattedDate}</Text>

@@ -8,11 +8,16 @@ import {
   ActivityIndicator,
   Alert,
   ImageBackground,
+  TouchableWithoutFeedback,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
-import { login } from "../api/user/userApi"; // Import hàm login từ file api
+import { login } from "../api/userApi";
 import { API_URL } from "@env";
 import { jwtDecode } from "jwt-decode";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+console.log(API_URL);
 
 const LoginScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
@@ -56,53 +61,64 @@ const LoginScreen = ({ navigation }) => {
         "Đăng nhập thất bại",
         error.message || "Có lỗi xảy ra, vui lòng thử lại sau."
       );
+      console.log(error);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <ImageBackground
-      source={require("../assets/images/background-login.webp")}
-      style={styles.background}
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={{ flex: 1 }}
     >
-      <View style={styles.overlay}>
-        <Text style={styles.titleApp}>Koi-thé</Text>
-        <View style={styles.container}>
-          <Text style={styles.title}>Đăng Nhập</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Tên đăng nhập"
-            value={username}
-            onChangeText={setUsername}
-            placeholderTextColor="#999"
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Mật khẩu"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            placeholderTextColor="#999"
-          />
-          <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-            <Text style={styles.loginButtonText}>Đăng Nhập</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.registerButton}
-            onPress={() => navigation.navigate("Register")}
-          >
-            <Text style={styles.registerButtonText}>Đăng Ký</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <ImageBackground
+          source={require("../assets/images/background-login.webp")}
+          style={styles.background}
+        >
+          <View style={styles.overlay}>
+            <Text style={styles.titleApp}>Koi-thé</Text>
+            <View style={styles.container}>
+              <Text style={styles.title}>Đăng Nhập</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Tên đăng nhập"
+                value={username}
+                onChangeText={setUsername}
+                placeholderTextColor="#999"
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Mật khẩu"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry
+                placeholderTextColor="#999"
+              />
+              <TouchableOpacity
+                style={styles.loginButton}
+                onPress={handleLogin}
+              >
+                <Text style={styles.loginButtonText}>Đăng Nhập</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.registerButton}
+                onPress={() => navigation.navigate("Register")}
+              >
+                <Text style={styles.registerButtonText}>Đăng Ký</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
 
-      {loading && (
-        <View style={styles.loadingOverlay}>
-          <ActivityIndicator size="large" color="#ff6347" />
-        </View>
-      )}
-    </ImageBackground>
+          {loading && (
+            <View style={styles.loadingOverlay}>
+              <ActivityIndicator size="large" color="#ff6347" />
+            </View>
+          )}
+        </ImageBackground>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 };
 

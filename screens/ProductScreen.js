@@ -1,3 +1,164 @@
+// import React, { useState, useEffect } from "react";
+// import {
+//   View,
+//   StyleSheet,
+//   FlatList,
+//   Text,
+//   ActivityIndicator,
+//   SafeAreaView,
+// } from "react-native";
+// import SearchBarFilter from "../components/SearchBarFilter";
+// import Product from "../components/Product";
+// import { getAllProduct } from "../api/productApi";
+
+// const ProductScreen = ({ route, navigation }) => {
+//   const { searchTerm } = route.params;
+//   const [searchText, setSearchText] = useState(searchTerm || "");
+//   const [filteredProducts, setFilteredProducts] = useState([]);
+//   const [showEndMessage, setShowEndMessage] = useState(false);
+//   const [loading, setLoading] = useState(true); // Start with loading as true
+//   const [products, setProducts] = useState([]);
+//   const [error, setError] = useState(null);
+
+//   useEffect(() => {
+//     const fetchProducts = async () => {
+//       try {
+//         const data = await getAllProduct();
+//         setProducts(data);
+//       } catch (error) {
+//         setError(error.message);
+//       } finally {
+//         setLoading(false); // Set loading to false after data is fetched
+//       }
+//     };
+
+//     fetchProducts();
+//   }, []);
+
+//   useEffect(() => {
+//     const sortedProducts = products.filter(
+//       (product) =>
+//         product.productName.toLowerCase().includes(searchText.toLowerCase()) ||
+//         (product.categoryId?.categoryName || "")
+//           .toLowerCase()
+//           .includes(searchText.toLowerCase())
+//     );
+
+//     setLoading(true); // Set loading to true while filtering
+//     const timer = setTimeout(() => {
+//       setFilteredProducts(sortedProducts);
+//       setLoading(false); // Set loading to false after delay
+//     }, 1000); // 1 second delay for loading effect
+
+//     return () => clearTimeout(timer); // Clear timeout on component unmount
+//   }, [searchText, products]); // Update filtered products when searchText or products change
+
+//   const handleApplyFilters = ({ selectedBreeds, selectedPrice }) => {
+//     setLoading(true); // Set loading to true
+//     const timer = setTimeout(() => {
+//       let filtered = [...products];
+
+//       // Assuming you have a "breed" property in your product data
+//       if (selectedBreeds.length > 0) {
+//         filtered = filtered.filter((product) =>
+//           selectedBreeds.includes(product.categoryId.categoryName)
+//         );
+//       }
+
+//       // Filter by price order
+//       if (selectedPrice) {
+//         filtered = filtered.sort((a, b) => {
+//           return selectedPrice === "asc"
+//             ? a.price - b.price
+//             : b.price - a.price;
+//         });
+//       }
+
+//       setFilteredProducts(filtered);
+//       setLoading(false); // Set loading to false after delay
+//     }, 1000); // 1 second delay for loading effect
+
+//     return () => clearTimeout(timer); // Clear timeout on component unmount
+//   };
+
+//   const handleEndReached = () => {
+//     if (!showEndMessage) {
+//       setShowEndMessage(true); // Show the end message
+//       setTimeout(() => {
+//         setShowEndMessage(false); // Hide the end message after 5 seconds
+//       }, 1000); // Show for 5 seconds
+//     }
+//   };
+
+//   return (
+//     <SafeAreaView style={styles.container}>
+//       <SearchBarFilter
+//         onApplyFilters={handleApplyFilters}
+//         searchText={searchText}
+//         setSearchText={setSearchText} // Pass the setter function to update search text
+//       />
+//       {loading ? ( // Show loading indicator if loading is true
+//         <ActivityIndicator
+//           size="large"
+//           color="#0000ff"
+//           style={styles.loadingIndicator}
+//         />
+//       ) : filteredProducts.length === 0 ? (
+//         <View style={styles.emptyContainer}>
+//           <Text style={styles.emptyText}>Không tìm thấy sản phẩm nào</Text>
+//         </View>
+//       ) : (
+//         <FlatList
+//           data={filteredProducts}
+//           renderItem={({ item }) => <Product item={item} />}
+//           keyExtractor={(item) => item._id} // Use _id for unique key
+//           numColumns={2}
+//           contentContainerStyle={styles.productList}
+//           showsVerticalScrollIndicator={false}
+//           onEndReached={handleEndReached}
+//           onEndReachedThreshold={0.1}
+//         />
+//       )}
+//       {showEndMessage && (
+//         <Text style={styles.endMessage}>---Đã đến cuối danh sách---</Text>
+//       )}
+//     </SafeAreaView>
+//   );
+// };
+
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     padding: 10,
+//     backgroundColor: "#fff",
+//   },
+//   productList: {
+//     paddingBottom: 10,
+//     marginTop: 10,
+//     justifyContent: "space-between",
+//   },
+//   emptyContainer: {
+//     flex: 1,
+//     justifyContent: "center",
+//     alignItems: "center",
+//   },
+//   emptyText: {
+//     fontSize: 18,
+//     color: "#999",
+//   },
+//   endMessage: {
+//     textAlign: "center",
+//     marginTop: 10,
+//     fontSize: 16,
+//     color: "#999",
+//   },
+//   loadingIndicator: {
+//     marginTop: 20,
+//   },
+// });
+
+// export default ProductScreen;
+
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -9,116 +170,56 @@ import {
 } from "react-native";
 import SearchBarFilter from "../components/SearchBarFilter";
 import Product from "../components/Product";
+import { getAllProduct } from "../api/productApi";
 
 const ProductScreen = ({ route, navigation }) => {
   const { searchTerm } = route.params;
   const [searchText, setSearchText] = useState(searchTerm || "");
   const [filteredProducts, setFilteredProducts] = useState([]);
-  const [showEndMessage, setShowEndMessage] = useState(false);
-  const [loading, setLoading] = useState(false); // New loading state
-
-  const products = [
-    {
-      id: "1",
-      name: "Koi Fish A",
-      price: 25,
-      imageUrl:
-        "https://file.hstatic.net/200000573099/file/thiet_ke_chua_co_ten__65__26169d23c20046ea8754593ffb1b3a9b_grande.png",
-      dateAdded: "2024-10-20",
-      breed: "Sanke",
-    },
-    {
-      id: "2",
-      name: "Koi Fish B",
-      price: 30,
-      imageUrl:
-        "https://file.hstatic.net/200000573099/file/thiet_ke_chua_co_ten__66__a862d072cefe43afacd7702dd35a4c36_grande.png",
-      dateAdded: "2024-10-19",
-      breed: "Kohaku",
-    },
-    {
-      id: "3",
-      name: "Koi Fish C",
-      price: 20,
-      imageUrl:
-        "https://file.hstatic.net/200000573099/file/thiet_ke_chua_co_ten__67__2ec4d4b8616347d7b2cf1302d79e421c_grande.png",
-      dateAdded: "2024-10-18",
-      breed: "Showa",
-    },
-    {
-      id: "4",
-      name: "Koi Fish D",
-      price: 35,
-      imageUrl:
-        "https://file.hstatic.net/200000573099/file/thiet_ke_chua_co_ten__72__87698067ae324bae84572162553d8183_grande.png",
-      dateAdded: "2024-10-21",
-      breed: "Utsuri",
-    },
-    {
-      id: "5",
-      name: "Koi Fish E",
-      price: 28,
-      imageUrl: "https://example.com/koi_fish_e.jpg",
-      dateAdded: "2024-10-17",
-      breed: "Taisho Sanshoku",
-    },
-    {
-      id: "6",
-      name: "Koi Fish F",
-      price: 40,
-      imageUrl: "https://example.com/koi_fish_f.jpg",
-      dateAdded: "2024-10-15",
-      breed: "Shiro Utsuri",
-    },
-    {
-      id: "7",
-      name: "Koi Fish G",
-      price: 50,
-      imageUrl: "https://example.com/koi_fish_g.jpg",
-      dateAdded: "2024-10-16",
-      breed: "Goshiki",
-    },
-    {
-      id: "8",
-      name: "Koi Fish H",
-      price: 45,
-      imageUrl: "https://example.com/koi_fish_h.jpg",
-      dateAdded: "2024-10-14",
-      breed: "Asagi",
-    },
-  ];
-
-  const sortedProducts = [...products]
-    .sort((a, b) => new Date(b.dateAdded) - new Date(a.dateAdded))
-    .filter(
-      (product) =>
-        product.name.toLowerCase().includes(searchText.toLowerCase()) ||
-        product.breed.toLowerCase().includes(searchText.toLowerCase())
-    );
+  const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false); // State to track loading more products
+  const [products, setProducts] = useState([]);
+  const [error, setError] = useState(null);
+  const [displayCount, setDisplayCount] = useState(6); // Initialize display count
 
   useEffect(() => {
-    setLoading(true); // Set loading to true
-    const timer = setTimeout(() => {
-      setFilteredProducts(sortedProducts);
-      setLoading(false); // Set loading to false after delay
-    }, 1000); // 1 second delay for loading effect
+    const fetchProducts = async () => {
+      try {
+        const data = await getAllProduct();
+        setProducts(data);
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false); // Set loading to false after data is fetched
+      }
+    };
 
-    return () => clearTimeout(timer); // Clear timeout on component unmount
-  }, [searchText]); // Update filtered products when searchText changes
+    fetchProducts();
+  }, []);
+
+  useEffect(() => {
+    const sortedProducts = products.filter(
+      (product) =>
+        product.productName.toLowerCase().includes(searchText.toLowerCase()) ||
+        (product.categoryId?.categoryName || "")
+          .toLowerCase()
+          .includes(searchText.toLowerCase())
+    );
+
+    setFilteredProducts(sortedProducts); // Update filtered products immediately
+  }, [searchText, products]);
 
   const handleApplyFilters = ({ selectedBreeds, selectedPrice }) => {
-    setLoading(true); // Set loading to true
+    setLoading(true);
     const timer = setTimeout(() => {
       let filtered = [...products];
 
-      // Filter by selected breeds
       if (selectedBreeds.length > 0) {
         filtered = filtered.filter((product) =>
-          selectedBreeds.includes(product.breed)
+          selectedBreeds.includes(product.categoryId.categoryName)
         );
       }
 
-      // Filter by price order
       if (selectedPrice) {
         filtered = filtered.sort((a, b) => {
           return selectedPrice === "asc"
@@ -128,18 +229,21 @@ const ProductScreen = ({ route, navigation }) => {
       }
 
       setFilteredProducts(filtered);
-      setLoading(false); // Set loading to false after delay
-    }, 1000); // 1 second delay for loading effect
+      setLoading(false);
+    }, 1000);
 
-    return () => clearTimeout(timer); // Clear timeout on component unmount
+    return () => clearTimeout(timer);
   };
 
   const handleEndReached = () => {
-    if (!showEndMessage) {
-      setShowEndMessage(true); // Show the end message
+    if (!loadingMore && displayCount < filteredProducts.length) {
+      setLoadingMore(true); // Start loading more products
       setTimeout(() => {
-        setShowEndMessage(false); // Hide the end message after 5 seconds
-      }, 1000);
+        setDisplayCount((prevCount) =>
+          Math.min(prevCount + 6, filteredProducts.length)
+        ); // Load 6 more products
+        setLoadingMore(false); // Stop loading more products
+      }, 1000); // Simulate loading time
     }
   };
 
@@ -148,9 +252,9 @@ const ProductScreen = ({ route, navigation }) => {
       <SearchBarFilter
         onApplyFilters={handleApplyFilters}
         searchText={searchText}
-        setSearchText={setSearchText} // Pass the setter function to update search text
+        setSearchText={setSearchText}
       />
-      {loading ? ( // Show loading indicator if loading is true
+      {loading ? (
         <ActivityIndicator
           size="large"
           color="#0000ff"
@@ -162,18 +266,30 @@ const ProductScreen = ({ route, navigation }) => {
         </View>
       ) : (
         <FlatList
-          data={filteredProducts}
+          data={filteredProducts.slice(0, displayCount)} // Only show the first 'displayCount' products
           renderItem={({ item }) => <Product item={item} />}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item) => item._id}
           numColumns={2}
           contentContainerStyle={styles.productList}
           showsVerticalScrollIndicator={false}
           onEndReached={handleEndReached}
           onEndReachedThreshold={0.1}
+          ListFooterComponent={
+            loadingMore ? (
+              <ActivityIndicator
+                size="small"
+                color="#0000ff"
+                style={styles.footerLoading}
+              />
+            ) : (
+              displayCount >= filteredProducts.length && (
+                <Text style={styles.endMessage}>
+                  ---Đã đến cuối danh sách---
+                </Text>
+              )
+            )
+          }
         />
-      )}
-      {showEndMessage && (
-        <Text style={styles.endMessage}>---Đã đến cuối danh sách---</Text>
       )}
     </SafeAreaView>
   );
@@ -202,12 +318,14 @@ const styles = StyleSheet.create({
   endMessage: {
     textAlign: "center",
     marginTop: 10,
-    // marginBottom: 20,
     fontSize: 16,
     color: "#999",
   },
   loadingIndicator: {
     marginTop: 20,
+  },
+  footerLoading: {
+    marginVertical: 10,
   },
 });
 
