@@ -9,40 +9,7 @@ import {
 } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
-const KoiBreeds = ({ navigation }) => {
-  const koiBreeds = [
-    {
-      name: "Kohaku",
-      image:
-        "https://file.hstatic.net/200000573099/file/thiet_ke_chua_co_ten__65__26169d23c20046ea8754593ffb1b3a9b_grande.png",
-    },
-    {
-      name: "Sanke",
-      image:
-        "https://file.hstatic.net/200000573099/file/thiet_ke_chua_co_ten__66__a862d072cefe43afacd7702dd35a4c36_grande.png",
-    },
-    {
-      name: "Showa",
-      image:
-        "https://file.hstatic.net/200000573099/file/thiet_ke_chua_co_ten__67__2ec4d4b8616347d7b2cf1302d79e421c_grande.png",
-    },
-    {
-      name: "Shusui",
-      image:
-        "https://file.hstatic.net/200000573099/file/thiet_ke_chua_co_ten__72__87698067ae324bae84572162553d8183_grande.png",
-    },
-    {
-      name: "Utsuri",
-      image:
-        "https://file.hstatic.net/200000573099/file/thiet_ke_chua_co_ten__74__751852fb25374c3eb9284c8fdb9cc663_grande.png",
-    },
-    {
-      name: "Tancho",
-      image:
-        "https://file.hstatic.net/200000573099/file/thiet_ke_chua_co_ten__73__375905fbe0534601b5a50f83f87af0e6_grande.png",
-    },
-  ];
-
+const KoiBreeds = ({ navigation, categories }) => {
   return (
     <View style={styles.section}>
       <View style={styles.flexJusSpace}>
@@ -61,14 +28,14 @@ const KoiBreeds = ({ navigation }) => {
         </Pressable>
       </View>
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        {koiBreeds.map((breed, index) => (
+        {categories.map((breed, index) => (
           <Pressable
             key={index}
             style={styles.breedCard}
             onPress={() => navigation.navigate("BreedDetail", { breed })}
           >
-            <Image source={{ uri: breed.image }} style={styles.breedImage} />
-            <Text style={styles.breedName}>{breed.name}</Text>
+            <Image source={{ uri: breed?.image }} style={styles.breedImage} />
+            <Text style={styles.breedName}>{breed?.categoryName}</Text>
           </Pressable>
         ))}
       </ScrollView>
@@ -112,6 +79,7 @@ const styles = StyleSheet.create({
     height: 100,
     borderRadius: 50,
     resizeMode: "cover", // Use cover to fill the circle
+    borderWidth: 1,
   },
   breedName: {
     textAlign: "center",
