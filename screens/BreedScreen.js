@@ -62,12 +62,14 @@ const BreedScreen = () => {
       }
     });
   };
-  const handlePress = () => {
-    navigation.navigate("BreedDetail");
-  };
 
   const renderBreedItem = ({ item }) => (
-    <Pressable onPress={handlePress} style={styles.breedCard}>
+    <Pressable
+      onPress={() =>
+        navigation.navigate("BreedDetail", { categoryId: item?._id })
+      }
+      style={styles.breedCard}
+    >
       <Image source={{ uri: item.image }} style={styles.breedImage} />
       <View style={styles.flexBetween}>
         <Text style={styles.breedName}>{item.categoryName}</Text>

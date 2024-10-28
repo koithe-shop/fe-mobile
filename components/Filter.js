@@ -1,4 +1,3 @@
-// Filter.js
 import React, { useState, useRef } from "react";
 import {
   StyleSheet,
@@ -12,13 +11,12 @@ import {
 } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
-const BREEDS = ["Kohaku", "Utsuri", "Sanke", "Betta", "Tilapia"];
 const PRICE_OPTIONS = [
   { label: "Tăng dần", value: "asc" },
   { label: "Giảm dần", value: "desc" },
 ];
 
-export default function Filter({ onApplyFilters }) {
+export default function Filter({ onApplyFilters, categories }) {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedBreeds, setSelectedBreeds] = useState([]);
   const [selectedPrice, setSelectedPrice] = useState(null);
@@ -50,26 +48,28 @@ export default function Filter({ onApplyFilters }) {
   };
 
   const applyFilters = () => {
-    // Pass the selected filters back to the parent component
     onApplyFilters({ selectedBreeds, selectedPrice });
     closeModal();
   };
+
   const clearFilters = () => {
     setSelectedPrice(null);
     setSelectedBreeds([]);
+    onApplyFilters({ selectedBreeds, selectedPrice });
+
     closeModal();
   };
 
   const renderBreedItem = (item) => (
     <TouchableOpacity
-      key={item}
+      key={item._id}
       style={[
         styles.optionButton,
-        selectedBreeds.includes(item) && styles.selectedOption,
+        selectedBreeds.includes(item.categoryName) && styles.selectedOption,
       ]}
-      onPress={() => toggleBreedSelection(item)}
+      onPress={() => toggleBreedSelection(item.categoryName)}
     >
-      <Text style={styles.optionText}>{item}</Text>
+      <Text style={styles.optionText}>{item.categoryName}</Text>
     </TouchableOpacity>
   );
 
@@ -116,7 +116,7 @@ export default function Filter({ onApplyFilters }) {
 
               <Text style={styles.sectionTitle}>Giống:</Text>
               <View style={styles.breedList}>
-                {BREEDS.map(renderBreedItem)}
+                {categories.map(renderBreedItem)}
               </View>
             </View>
 

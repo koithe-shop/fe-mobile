@@ -32,7 +32,9 @@ const KoiBreeds = ({ navigation, categories }) => {
           <Pressable
             key={index}
             style={styles.breedCard}
-            onPress={() => navigation.navigate("BreedDetail", { breed })}
+            onPress={() =>
+              navigation.navigate("BreedDetail", { categoryId: breed?._id })
+            }
           >
             <Image source={{ uri: breed?.image }} style={styles.breedImage} />
             <Text style={styles.breedName}>{breed?.categoryName}</Text>

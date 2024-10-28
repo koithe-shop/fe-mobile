@@ -5,7 +5,6 @@ import ProductScreen from "../screens/ProductScreen";
 import { Button } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import Icon from "react-native-vector-icons/MaterialIcons";
-import SearchResultsScreen from "../screens/SearchResultsScreen";
 import SearchScreen from "../screens/SearchScreen";
 import BreedScreen from "../screens/BreedScreen";
 import ProductDetailScreen from "../screens/ProductDetailScreen";
@@ -23,6 +22,7 @@ const HomeStack = ({ navigation }) => {
         screenOptions={{
           headerStyle: { backgroundColor: "#272d2b" },
           headerTintColor: "#fff",
+          animationTypeForReplace: "push", // Để có hiệu ứng chuyển đổi từ trái qua phải
         }}
       >
         <Stack.Screen
@@ -101,14 +101,6 @@ const HomeStack = ({ navigation }) => {
             headerLeft: () => null,
 
             headerShown: false, // Hide the header for ProductScreen
-          }}
-        />
-        <Stack.Screen
-          name="SearchResults"
-          component={SearchResultsScreen}
-          options={{
-            // Ẩn nút menu drawer
-            headerLeft: () => null,
           }}
         />
       </Stack.Navigator>
