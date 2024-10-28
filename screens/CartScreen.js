@@ -7,33 +7,14 @@ import {
   StyleSheet,
   Image,
 } from "react-native";
-import { MaterialIcons, Feather, AntDesign } from "@expo/vector-icons";
+import { MaterialIcons, AntDesign } from "@expo/vector-icons";
 import { CheckBox } from "react-native-elements";
+import { useAsyncStorage } from "../context/AsyncStorageContext";
 
 const CartScreen = ({ navigation }) => {
+  const { data: cartItems, saveData } = useAsyncStorage();
   const [isEditing, setIsEditing] = useState(false);
   const [selectedItems, setSelectedItems] = useState([]);
-  const [cartItems, setCartItems] = useState([
-    {
-      id: "1",
-      name: "Cá Koi Kohaku Premium",
-      breed: "Kohaku",
-      price: 5000000,
-      quantity: 1,
-      imageUrl:
-        "https://file.hstatic.net/200000573099/file/thiet_ke_chua_co_ten__65__26169d23c20046ea8754593ffb1b3a9b_grande.png",
-    },
-    {
-      id: "2",
-      name: "Cá Koi Sanke Premium",
-      breed: "Sanke",
-      price: 7000000,
-      quantity: 1,
-      imageUrl:
-        "https://file.hstatic.net/200000573099/file/thiet_ke_chua_co_ten__66__a862d072cefe43afacd7702dd35a4c36_grande.png",
-    },
-  ]);
-  const [selectedVoucher, setSelectedVoucher] = useState(null);
 
   useEffect(() => {
     navigation.setOptions({
@@ -44,6 +25,13 @@ const CartScreen = ({ navigation }) => {
       ),
     });
   }, [navigation, isEditing]);
+
+  useEffect(() => {
+    if (cartItems) {
+      saveData(cartItems);
+    }
+  }, [cartItems, saveData]);
+
   const toggleItemSelection = (itemId) => {
     if (selectedItems.includes(itemId)) {
       setSelectedItems(selectedItems.filter((id) => id !== itemId));
@@ -53,35 +41,22 @@ const CartScreen = ({ navigation }) => {
   };
 
   const toggleSelectAll = () => {
-    if (selectedItems.length === cartItems.length) {
+    if (selectedItems.length === (cartItems?.length || 0)) {
       setSelectedItems([]);
     } else {
-      setSelectedItems(cartItems.map((item) => item.id));
+      setSelectedItems(cartItems?.map((item) => item._id) || []);
     }
   };
 
-  const updateQuantity = (itemId, change) => {
-    setCartItems(
-      cartItems.map((item) => {
-        if (item.id === itemId) {
-          const newQuantity = Math.max(1, item.quantity + change);
-          return { ...item, quantity: newQuantity };
-        }
-        return item;
-      })
-    );
-  };
-
   const deleteSelectedItems = () => {
-    setCartItems(cartItems.filter((item) => !selectedItems.includes(item.id)));
-    setSelectedItems([]);
+    if (cartItems) {
+      saveData(cartItems.filter((item) => !selectedItems.includes(item._id)));
+      setSelectedItems([]);
+    }
   };
 
   const calculateTotal = () => {
-    return cartItems.reduce(
-      (total, item) => total + item.price * item.quantity,
-      0
-    );
+    return (cartItems || []).reduce((total, item) => total + item.price, 0);
   };
 
   const formatPrice = (price) => {
@@ -92,101 +67,59 @@ const CartScreen = ({ navigation }) => {
   };
 
   const handleCheckout = () => {
-    const selectedProducts = cartItems.filter((item) =>
-      selectedItems.includes(item.id)
+    const selectedProducts = (cartItems || []).filter((item) =>
+      selectedItems.includes(item._id)
     );
     navigation.navigate("Checkout", {
       products: selectedProducts,
-      voucher: selectedVoucher,
     });
   };
 
   return (
     <View style={styles.container}>
-      {/* <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <MaterialIcons name="arrow-back" size={24} color="#000" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Giỏ hàng</Text>
-        <TouchableOpacity onPress={() => setIsEditing(!isEditing)}>
-          <Text style={styles.editButton}>{isEditing ? "Xong" : "Sửa"}</Text>
-        </TouchableOpacity>
-      </View> */}
-
       <ScrollView style={styles.cartContent}>
-        {cartItems.map((item) => (
+        {cartItems?.map((item) => (
           <TouchableOpacity
-            key={item.id}
+            key={item._id}
             onPress={() =>
-              navigation.navigate("ProductDetail", { productId: item.id })
+              navigation.navigate("ProductDetail", { productId: item._id })
             }
             style={styles.cartItem}
           >
             {isEditing && (
               <CheckBox
-                checked={selectedItems.includes(item.id)}
-                onPress={() => toggleItemSelection(item.id)}
+                checked={selectedItems.includes(item._id)}
+                onPress={() => toggleItemSelection(item._id)}
                 containerStyle={styles.checkbox}
               />
             )}
             <Image
-              source={{ uri: item.imageUrl }}
+              source={{
+                uri: item.image?.[0]
+                  ? item.image[0]
+                  : "https://via.placeholder.com/80",
+              }}
               style={styles.productImage}
+              onError={(e) => {
+                e.target.src = "https://via.placeholder.com/80";
+              }}
             />
             <View style={styles.productInfo}>
-              <Text style={styles.productName}>{item.name}</Text>
-              <Text style={styles.productBreed}>({item.breed})</Text>
+              <Text style={styles.productName}>{item.productName}</Text>
+              <Text style={styles.productBreed}>
+                ({item.categoryId?.categoryName})
+              </Text>
               <Text style={styles.productPrice}>{formatPrice(item.price)}</Text>
-              <View style={styles.quantityControl}>
-                <TouchableOpacity
-                  onPress={() => updateQuantity(item.id, -1)}
-                  style={styles.quantityButton}
-                >
-                  <AntDesign name="minus" size={20} color="#000" />
-                </TouchableOpacity>
-                <Text style={styles.quantity}>{item.quantity}</Text>
-                <TouchableOpacity
-                  onPress={() => updateQuantity(item.id, 1)}
-                  style={styles.quantityButton}
-                >
-                  <AntDesign name="plus" size={20} color="#000" />
-                </TouchableOpacity>
-              </View>
             </View>
           </TouchableOpacity>
         ))}
       </ScrollView>
 
       <View style={styles.footer}>
-        <TouchableOpacity
-          style={styles.voucherSection}
-          onPress={() =>
-            navigation.navigate("VoucherSelection", {
-              onSelectVoucher: (voucher) => setSelectedVoucher(voucher),
-            })
-          }
-        >
-          <View style={styles.voucherLeft}>
-            <Feather name="tag" size={20} color="#ba2d32" />
-            <Text style={styles.voucherText}>Voucher</Text>
-          </View>
-          <View style={styles.voucherRight}>
-            {selectedVoucher ? (
-              <Text style={styles.selectedVoucher}>{selectedVoucher.name}</Text>
-            ) : (
-              <MaterialIcons
-                name="keyboard-arrow-right"
-                size={24}
-                color="#666"
-              />
-            )}
-          </View>
-        </TouchableOpacity>
-
         {isEditing ? (
           <View style={styles.editingFooter}>
             <CheckBox
-              checked={selectedItems.length === cartItems.length}
+              checked={selectedItems.length === (cartItems?.length || 0)}
               onPress={toggleSelectAll}
               containerStyle={styles.checkbox}
             />
@@ -224,23 +157,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    // marginVertical: 20,
     paddingTop: 30,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#eee",
-  },
-  headerTitle: {
-    flex: 1,
-    fontSize: 20,
-    fontWeight: "bold",
-    textAlign: "center",
-    marginRight: 40,
   },
   editButton: {
     color: "#ba2d32",
@@ -284,46 +201,21 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 8,
   },
-  quantityControl: {
-    flexDirection: "row",
-    alignItems: "center",
+  certificatesInfo: {
+    marginTop: 4,
   },
-  quantityButton: {
-    width: 32,
-    height: 32,
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 16,
-    justifyContent: "center",
-    alignItems: "center",
+  healthStatus: {
+    fontSize: 12,
+    color: "#888",
   },
-  quantity: {
-    marginHorizontal: 16,
-    fontSize: 16,
+  awards: {
+    fontSize: 12,
+    color: "#888",
   },
   footer: {
     borderTopWidth: 1,
     borderTopColor: "#eee",
-  },
-  voucherSection: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#eee",
-  },
-  voucherLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  voucherText: {
-    marginLeft: 8,
-    fontSize: 16,
-  },
-  selectedVoucher: {
-    color: "#ba2d32",
-    fontSize: 14,
+    marginBottom: 20,
   },
   editingFooter: {
     flexDirection: "row",

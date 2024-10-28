@@ -15,7 +15,7 @@ const KoiFish = ({ navigation, products }) => {
   const renderItem = ({ item }) => (
     <Pressable
       style={styles.fishCard}
-      onPress={() => navigation.navigate("ProductDetail", { fish: item })}
+      onPress={() => navigation.navigate("ProductDetail", { productId: item._id })}
     >
       <Image
         source={{ uri: item.image[0] }}

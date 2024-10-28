@@ -14,7 +14,7 @@ const Product = ({ item }) => {
 
   const navigation = useNavigation();
   const handlePress = () => {
-    navigation.navigate("ProductDetail", { product: item });
+    navigation.navigate("ProductDetail", { productId: item._id});
   };
   return (
     <TouchableOpacity style={styles.productCard} onPress={handlePress}>

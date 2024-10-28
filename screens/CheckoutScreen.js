@@ -7,155 +7,123 @@ import {
   StyleSheet,
   Image,
   SafeAreaView,
+  Alert,
 } from "react-native";
-import { MaterialIcons, Feather } from "@expo/vector-icons";
+import { MaterialIcons } from "@expo/vector-icons";
+import { TextInput } from "react-native-gesture-handler";
+import { createOrder } from "../api/orderApi"; 
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const CheckoutScreen = ({ route, navigation }) => {
-  const { products = [], voucher } = route.params;
-  const [selectedAddress, setSelectedAddress] = useState(null);
+  const { products = [] } = route.params;
+  const [inputAddress, setInputAddress] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("cod");
+
   useEffect(() => {
     navigation.setOptions({
       headerRight: () => (
-        <>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <MaterialIcons name="more-horiz" size={24} color="#fff" />
-          </TouchableOpacity>
-        </>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <MaterialIcons name="more-horiz" size={24} color="#fff" />
+        </TouchableOpacity>
       ),
     });
   }, [navigation]);
-  const calculateSubtotal = () => {
-    return products.reduce(
-      (total, item) => total + item.price * item.quantity,
-      0
-    );
-  };
 
-  const calculateShipping = () => {
-    return 50000;
-  };
+  const calculateSubtotal = () =>
+    products.reduce((total, item) => total + item.price, 0);
+  const calculateShipping = () => 50000;
+  const calculateTotal = () => calculateSubtotal() + calculateShipping();
 
-  const calculateDiscount = () => {
-    if (!voucher) return 0;
-    return voucher.discountAmount || 0;
-  };
-
-  const calculateTotal = () => {
-    return calculateSubtotal() + calculateShipping() - calculateDiscount();
-  };
-
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat("vi-VN", {
+  const formatPrice = (price) =>
+    new Intl.NumberFormat("vi-VN", {
       style: "currency",
       currency: "VND",
     }).format(price);
-  };
 
-  const handlePlaceOrder = () => {
-    navigation.navigate("OrderConfirmation");
+  const handlePlaceOrder = async () => {
+    if (!inputAddress) {
+      Alert.alert("Lỗi", "Vui lòng nhập địa chỉ giao hàng.");
+      return;
+    }
+
+    const userId = await AsyncStorage.getItem("userId");
+    console.log(userId);
+    
+
+    const orderData = {
+      userId, 
+      products: products.map((item) => item._id), 
+      totalPrice: calculateTotal(),
+      address: inputAddress,
+    };
+
+    try {
+      const result = await createOrder(orderData); 
+      Alert.alert("Success", "Đặt hàng thành công!");
+      navigation.navigate("OrderStack");
+    } catch (error) {
+      Alert.alert("Error", error.message || "Không thể đặt hàng. Vui lòng thử lại sau.");
+    }
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.container}>
-        {/* <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <MaterialIcons name="arrow-back" size={24} color="#000" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Thanh toán</Text>
-        <View style={{ width: 24 }} />
-      </View> */}
-
         <ScrollView style={styles.content}>
-          <TouchableOpacity
-            style={styles.section}
-            onPress={() =>
-              navigation.navigate("ShippingAddress", {
-                onSelectAddress: (address) => setSelectedAddress(address),
-              })
-            }
-          >
+          <View style={styles.section}>
             <View style={styles.sectionHeader}>
               <MaterialIcons name="location-on" size={24} color="#ba2d32" />
               <Text style={styles.sectionTitle}>Địa chỉ nhận hàng</Text>
             </View>
-            <View style={styles.rowContainer}>
-              {selectedAddress ? (
-                <View style={styles.addressInfo}>
-                  <Text style={styles.addressName}>{selectedAddress.name}</Text>
-                  <Text style={styles.addressPhone}>
-                    {selectedAddress.phone}
-                  </Text>
-                  <Text style={styles.addressDetail}>
-                    {selectedAddress.address}
-                  </Text>
-                </View>
-              ) : (
-                <Text style={styles.addAddress}>+ Thêm địa chỉ mới</Text>
-              )}
-              <MaterialIcons
-                name="keyboard-arrow-right"
-                size={24}
-                color="#666"
-              />
-            </View>
-          </TouchableOpacity>
+            <TextInput
+              style={styles.inputText}
+              placeholder="Nhập địa chỉ của bạn"
+              value={inputAddress}
+              onChangeText={setInputAddress}
+            />
+          </View>
+
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Sản phẩm đã chọn</Text>
+            <ScrollView>
             {products && products.length > 0 ? (
               products.map((item) => (
                 <TouchableOpacity
-                  key={item.id}
+                  key={item._id}
                   onPress={() =>
-                    navigation.navigate("ProductDetail", { productId: item.id })
+                    navigation.navigate("ProductDetail", {
+                      productId: item._id,
+                    })
                   }
                   style={styles.productItem}
                 >
                   <Image
-                    source={{ uri: item.imageUrl }}
+                    source={{
+                      uri: item.image?.[0] || "https://via.placeholder.com/80",
+                    }}
                     style={styles.productImage}
+                    resizeMode="cover"
+                    onError={(e) => {
+                      e.nativeEvent.target.src =
+                        "https://via.placeholder.com/80";
+                    }}
                   />
                   <View style={styles.productInfo}>
-                    <Text style={styles.productName}>{item.name}</Text>
-                    <Text style={styles.productBreed}>({item.breed})</Text>
+                    <Text style={styles.productName}>{item.productName}</Text>
+                    <Text style={styles.productBreed}>
+                      ({item.categoryId?.categoryName})
+                    </Text>
                     <Text style={styles.productPrice}>
                       {formatPrice(item.price)}
                     </Text>
-                    <Text style={styles.quantity}>x{item.quantity}</Text>
                   </View>
                 </TouchableOpacity>
               ))
             ) : (
               <Text>No products found</Text>
             )}
+            </ScrollView>
           </View>
-
-          <TouchableOpacity
-            style={styles.section}
-            onPress={() =>
-              navigation.navigate("VoucherSelection", {
-                onSelectVoucher: (voucher) => setSelectedVoucher(voucher),
-              })
-            }
-          >
-            <View style={styles.sectionHeader}>
-              <Feather name="tag" size={20} color="#ba2d32" />
-              <Text style={styles.sectionTitle}>Voucher</Text>
-            </View>
-            <View style={styles.rowContainer}>
-              {voucher ? (
-                <Text style={styles.selectedVoucher}>{voucher.name}</Text>
-              ) : (
-                <Text style={styles.noVoucher}>Chọn voucher</Text>
-              )}
-              <MaterialIcons
-                name="keyboard-arrow-right"
-                size={24}
-                color="#666"
-              />
-            </View>
-          </TouchableOpacity>
 
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Phương thức thanh toán</Text>
@@ -177,7 +145,7 @@ const CheckoutScreen = ({ route, navigation }) => {
               onPress={() => setPaymentMethod("stripe")}
             >
               <MaterialIcons name="credit-card" size={24} color="#666" />
-              <Text style={styles.paymentText}>Thanh toán qua Stripe</Text>
+              <Text style={styles.paymentText}>Thanh toán bằng Stripe</Text>
             </TouchableOpacity>
           </View>
 
@@ -193,12 +161,6 @@ const CheckoutScreen = ({ route, navigation }) => {
               <Text style={styles.paymentLabel}>Phí vận chuyển</Text>
               <Text style={styles.paymentValue}>
                 {formatPrice(calculateShipping())}
-              </Text>
-            </View>
-            <View style={styles.paymentDetail}>
-              <Text style={styles.paymentLabel}>Giảm giá voucher</Text>
-              <Text style={styles.paymentValue}>
-                -{formatPrice(calculateDiscount())}
               </Text>
             </View>
             <View style={[styles.paymentDetail, styles.totalDetail]}>
@@ -220,7 +182,7 @@ const CheckoutScreen = ({ route, navigation }) => {
           <TouchableOpacity
             style={styles.orderButton}
             onPress={handlePlaceOrder}
-            disabled={!selectedAddress}
+            disabled={!inputAddress}
           >
             <Text style={styles.orderButtonText}>Đặt hàng</Text>
           </TouchableOpacity>
@@ -229,6 +191,7 @@ const CheckoutScreen = ({ route, navigation }) => {
     </SafeAreaView>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
@@ -266,6 +229,16 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     marginLeft: 8,
+  },
+  inputText: {
+    fontSize: 16,
+    color: "#333",
+    borderWidth: 1,
+    borderColor: "#ccc",
+    padding: 10,
+    borderRadius: 8,
+    backgroundColor: "#f9f9f9",
+    marginTop: 8,
   },
   rowContainer: {
     flexDirection: "row",
@@ -329,14 +302,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#666",
     marginTop: 4,
-  },
-  selectedVoucher: {
-    color: "#ba2d32",
-    fontSize: 14,
-  },
-  noVoucher: {
-    color: "#666",
-    fontSize: 14,
   },
   paymentOption: {
     flexDirection: "row",
