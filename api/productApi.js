@@ -22,6 +22,29 @@ export const getAllProduct = async () => {
     throw error;
   }
 };
+export const getProductsByCategoryId = async (categoryId) => {
+  try {
+    const response = await fetch(`${API_URL}/products/category/${categoryId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        // Authorization: `Bearer ${token}`, // Add token if required
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(
+        errorData.message || "Không thể lấy sản phẩm theo category ID"
+      );
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    throw error;
+  }
+};
 
 export const getProductById = async (productId) => {
   try {
@@ -45,23 +68,3 @@ export const getProductById = async (productId) => {
   }
 };
 
-export const getProductsByCategory = async (categoryId) => {
-  try {
-    const response = await fetch(`${API_URL}/products/category/${categoryId}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || "Không thể lấy thông tin Product theo danh mục");
-    }
-
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    throw error;
-  }
-};
