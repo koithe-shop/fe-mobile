@@ -11,7 +11,7 @@ import {
   Alert,
 } from "react-native";
 import { MaterialIcons, AntDesign, Feather } from "@expo/vector-icons";
-import { getProductById, getProductsByCategory } from "../api/productApi";
+import { getProductById, getProductsByCategoryId } from "../api/productApi";
 import { useAsyncStorage } from "../context/AsyncStorageContext";
 
 const DetailItem = ({ label, value }) => (
@@ -94,7 +94,7 @@ const ProductDetailScreen = ({ navigation, route }) => {
       setProduct(productData);
 
       if (productData?.categoryId?._id) {
-        const relatedData = await getProductsByCategory(
+        const relatedData = await getProductsByCategoryId(
           productData.categoryId._id
         );
         console.log("Related Products Data:", relatedData);

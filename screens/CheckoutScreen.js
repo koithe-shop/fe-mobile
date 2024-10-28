@@ -11,13 +11,15 @@ import {
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { TextInput } from "react-native-gesture-handler";
-import { createOrder } from "../api/orderApi"; 
+import { createOrder } from "../api/orderApi";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useAsyncStorage } from "../context/AsyncStorageContext";
 
 const CheckoutScreen = ({ route, navigation }) => {
   const { products = [] } = route.params;
   const [inputAddress, setInputAddress] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("cod");
+  const { removeItems } = useAsyncStorage();
 
   useEffect(() => {
     navigation.setOptions({
@@ -47,22 +49,24 @@ const CheckoutScreen = ({ route, navigation }) => {
     }
 
     const userId = await AsyncStorage.getItem("userId");
-    console.log(userId);
-    
 
     const orderData = {
-      userId, 
-      products: products.map((item) => item._id), 
+      userId,
+      products: products.map((item) => item._id),
       totalPrice: calculateTotal(),
       address: inputAddress,
     };
 
     try {
-      const result = await createOrder(orderData); 
+      const result = await createOrder(orderData);
+      await removeItems(products.map(item => item._id));
       Alert.alert("Success", "Đặt hàng thành công!");
       navigation.navigate("OrderStack");
     } catch (error) {
-      Alert.alert("Error", error.message || "Không thể đặt hàng. Vui lòng thử lại sau.");
+      Alert.alert(
+        "Error",
+        error.message || "Không thể đặt hàng. Vui lòng thử lại sau."
+      );
     }
   };
 
@@ -86,42 +90,41 @@ const CheckoutScreen = ({ route, navigation }) => {
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Sản phẩm đã chọn</Text>
             <ScrollView>
-            {products && products.length > 0 ? (
-              products.map((item) => (
-                <TouchableOpacity
-                  key={item._id}
-                  onPress={() =>
-                    navigation.navigate("ProductDetail", {
-                      productId: item._id,
-                    })
-                  }
-                  style={styles.productItem}
-                >
-                  <Image
-                    source={{
-                      uri: item.image?.[0] || "https://via.placeholder.com/80",
-                    }}
-                    style={styles.productImage}
-                    resizeMode="cover"
-                    onError={(e) => {
-                      e.nativeEvent.target.src =
-                        "https://via.placeholder.com/80";
-                    }}
-                  />
-                  <View style={styles.productInfo}>
-                    <Text style={styles.productName}>{item.productName}</Text>
-                    <Text style={styles.productBreed}>
-                      ({item.categoryId?.categoryName})
-                    </Text>
-                    <Text style={styles.productPrice}>
-                      {formatPrice(item.price)}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              ))
-            ) : (
-              <Text>No products found</Text>
-            )}
+              {products && products.length > 0 ? (
+                products.map((item) => (
+                  <TouchableOpacity
+                    key={item._id}
+                    onPress={() =>
+                      navigation.navigate("ProductDetail", {
+                        productId: item._id,
+                      })
+                    }
+                    style={styles.productItem}
+                  >
+                    <Image
+                      source={{
+                        uri: item.image?.[0] || "https://via.placeholder.com/80",
+                      }}
+                      style={styles.productImage}
+                      resizeMode="cover"
+                      onError={(e) => {
+                        e.nativeEvent.target.src = "https://via.placeholder.com/80";
+                      }}
+                    />
+                    <View style={styles.productInfo}>
+                      <Text style={styles.productName}>{item.productName}</Text>
+                      <Text style={styles.productBreed}>
+                        ({item.categoryId?.categoryName})
+                      </Text>
+                      <Text style={styles.productPrice}>
+                        {formatPrice(item.price)}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                ))
+              ) : (
+                <Text>No products found</Text>
+              )}
             </ScrollView>
           </View>
 
