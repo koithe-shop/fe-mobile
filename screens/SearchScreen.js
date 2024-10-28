@@ -50,7 +50,7 @@ const SearchScreen = ({ navigation }) => {
     if (searchText) {
       Keyboard.dismiss();
       saveHistory(searchText);
-      navigation.navigate("Product", { searchTerm: searchText });
+      navigation.replace("Product", { searchTerm: searchText });
     }
   };
 

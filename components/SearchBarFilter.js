@@ -4,12 +4,8 @@ import { View, TextInput, StyleSheet, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native"; // Import useNavigation
 import Filter from "./Filter";
 
-const SearchBarFilter = ({ searchText, onApplyFilters }) => {
+const SearchBarFilter = ({ searchText, onApplyFilters, categories }) => {
   const navigation = useNavigation(); // Get navigation object using the hook
-
-  const handleCartPress = () => {
-    navigation.navigate("Cart");
-  };
 
   const handleSearchPress = () => {
     navigation.navigate("Search");
@@ -24,7 +20,7 @@ const SearchBarFilter = ({ searchText, onApplyFilters }) => {
         onTouchStart={handleSearchPress} // Mở modal khi chạm vào ô tìm kiếm
         editable={false} // Disable typing so it acts like a button
       />
-      <Filter onApplyFilters={onApplyFilters} />
+      <Filter categories={categories} onApplyFilters={onApplyFilters} />
     </View>
   );
 };

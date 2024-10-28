@@ -49,17 +49,21 @@ const ratings = [
 
 // Scenes for each tab
 const ProductRoute = () => (
-  <FlatList
-    data={products}
-    keyExtractor={(item) => item.id}
-    numColumns={2} // To render products in two columns
-    renderItem={({ item }) => <Product item={item} />} // Call the Product component
-  />
+  <Text>Ame</Text>
+  // <FlatList
+  //   data={products}
+  //   keyExtractor={(item) => item.id}
+  //   numColumns={2} // To render products in two columns
+  //   renderItem={({ item }) => <Product item={item} />} // Call the Product component
+  // />
 );
 
 const RatingRoute = () => <RatingList item={ratings} />;
 
-export default function BreedDetail() {
+export default function BreedDetail({ route }) {
+  const { breed } = route.params; // Lấy id từ params
+  console.log(route.params);
+
   const [index, setIndex] = useState(0);
   const [routes] = useState([
     { key: "products", title: "Products" },
