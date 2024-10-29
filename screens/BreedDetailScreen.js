@@ -5,33 +5,13 @@ import {
   Image,
   FlatList,
   SafeAreaView,
+  ActivityIndicator,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { SceneMap, TabBar, TabView } from "react-native-tab-view";
 import Product from "../components/Product";
 import RatingList from "../components/RatingList";
-
-const products = [
-  {
-    id: "1",
-    name: "Koi Fish A",
-    price: 25,
-    imageUrl:
-      "https://file.hstatic.net/200000573099/file/thiet_ke_chua_co_ten__65__26169d23c20046ea8754593ffb1b3a9b_grande.png",
-    dateAdded: "2024-10-20",
-    breed: "Sanke",
-  },
-  {
-    id: "2",
-    name: "Koi Fish B",
-    price: 30,
-    imageUrl:
-      "https://file.hstatic.net/200000573099/file/thiet_ke_chua_co_ten__66__a862d072cefe43afacd7702dd35a4c36_grande.png",
-    dateAdded: "2024-10-19",
-    breed: "Kohaku",
-  },
-  // ... other products
-];
+import { getProductsByCategoryId } from "../api/productApi";
 
 const ratings = [
   {
@@ -48,21 +28,63 @@ const ratings = [
 ];
 
 // Scenes for each tab
-const ProductRoute = () => (
-  <Text>Ame</Text>
-  // <FlatList
-  //   data={products}
-  //   keyExtractor={(item) => item.id}
-  //   numColumns={2} // To render products in two columns
-  //   renderItem={({ item }) => <Product item={item} />} // Call the Product component
-  // />
-);
+const ProductRoute = ({ products, loading, error }) => {
+  if (loading) {
+    return <ActivityIndicator size="large" color="#ffca28" />;
+  }
+
+  if (error) {
+    return <Text>Error: {error}</Text>;
+  }
+
+  if (products.length === 0) {
+    return <Text style={styles.noProductText}>Không có sản phẩm</Text>;
+  }
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </SafeAreaView>
+    );
+  }
+
+  return (
+    <FlatList
+      data={products}
+      keyExtractor={(item) => item.id}
+      numColumns={2} // Renders products in two columns
+      renderItem={({ item }) => <Product item={item} />} // Calls the Product component
+    />
+  );
+};
 
 const RatingRoute = () => <RatingList item={ratings} />;
 
 export default function BreedDetail({ route }) {
-  const { breed } = route.params; // Lấy id từ params
-  console.log(route.params);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const { categoryId } = route.params; // Lấy id từ params
+  console.log(categoryId);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const data = await getProductsByCategoryId(categoryId);
+        setProducts(data);
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (categoryId) {
+      fetchProducts(); // Call the function only if categoryId is available
+    }
+  }, []);
 
   const [index, setIndex] = useState(0);
   const [routes] = useState([
@@ -71,7 +93,9 @@ export default function BreedDetail({ route }) {
   ]);
 
   const renderScene = SceneMap({
-    products: ProductRoute,
+    products: () => (
+      <ProductRoute products={products} loading={loading} error={error} />
+    ),
     ratings: RatingRoute,
   });
 
@@ -130,5 +154,17 @@ const styles = StyleSheet.create({
     padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: "#ccc",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#fff",
+  },
+  noProductText: {
+    textAlign: "center",
+    marginTop: 20,
+    fontSize: 18,
+    color: "#888",
   },
 });

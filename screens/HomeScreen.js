@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { FlatList, View, StyleSheet, SafeAreaView } from "react-native";
+import {
+  FlatList,
+  View,
+  StyleSheet,
+  SafeAreaView,
+  ActivityIndicator,
+} from "react-native";
 import SearchBar from "../components/SearchBar";
 import HeroSection from "../components/HeroSection";
 import KoiBreeds from "../components/KoiBreeds";
@@ -51,6 +57,14 @@ const HomeScreen = ({ navigation }) => {
     },
   ];
 
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.fixedSearchBar}>
@@ -75,6 +89,12 @@ const styles = StyleSheet.create({
   fixedSearchBar: {
     backgroundColor: "#fff",
     zIndex: 10,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#fff",
   },
 });
 
