@@ -77,10 +77,7 @@ const HomeStack = ({ navigation }) => {
             // headerShown: false,
           }}
         />
-        <Stack.Screen
-          name="Feedback"
-          component={FeedbackScreen}
-        />
+        <Stack.Screen name="Feedback" component={FeedbackScreen} />
 
         <Stack.Screen
           name="Breed"
