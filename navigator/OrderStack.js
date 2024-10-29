@@ -3,10 +3,21 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import OrderScreen from "../screens/OrderScreen";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { TouchableOpacity } from "react-native";
+import OrderDetailScreen from "../screens/OrderDetailScreen";
 
 const Stack = createNativeStackNavigator();
 
 const OrderStack = ({ navigation }) => {
+  React.useEffect(() => {
+    const unsubscribe = navigation.addListener("focus", () => {
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "Order" }],
+      });
+    });
+
+    return unsubscribe;
+  }, [navigation]);
   return (
     <Stack.Navigator
       initialRouteName="Order"
@@ -19,7 +30,7 @@ const OrderStack = ({ navigation }) => {
         name="Order"
         component={OrderScreen}
         options={{
-          title: "Profile",
+          title: "Orders",
           headerLeft: () => (
             <TouchableOpacity
               onPress={() => navigation.openDrawer()}
@@ -30,6 +41,8 @@ const OrderStack = ({ navigation }) => {
           ),
         }}
       />
+
+      <Stack.Screen name="OrderDetail" component={OrderDetailScreen} />
     </Stack.Navigator>
   );
 };

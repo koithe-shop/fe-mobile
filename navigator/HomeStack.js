@@ -11,6 +11,7 @@ import ProductDetailScreen from "../screens/ProductDetailScreen";
 import BreedDetailScreen from "../screens/BreedDetailScreen";
 import CartScreen from "../screens/CartScreen";
 import CheckoutScreen from "../screens/CheckoutScreen";
+import FeedbackScreen from "../screens/FeedbackScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -75,6 +76,10 @@ const HomeStack = ({ navigation }) => {
             title: "Check out",
             // headerShown: false,
           }}
+        />
+        <Stack.Screen
+          name="Feedback"
+          component={FeedbackScreen}
         />
 
         <Stack.Screen
