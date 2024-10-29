@@ -1,139 +1,294 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  StyleSheet,
+  SafeAreaView,
+  ActivityIndicator,
+  RefreshControl,
+} from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
+import { getAllOrders } from '../api/orderApi';
 
 const OrderScreen = ({ navigation }) => {
-  const orders = [
-    {
-      id: '1',
-      orderNumber: '#ORD001',
-      date: '23/10/2024',
-      total: '1,250,000₫',
-      status: 'Đã giao',
-      items: [
-        {
-          id: '1',
-          name: 'Áo thun nam',
-          quantity: 2,
-          price: '250,000₫',
-          image: 'https://via.placeholder.com/100',
-        },
-        {
-          id: '2',
-          name: 'Quần jean',
-          quantity: 1,
-          price: '750,000₫',
-          image: 'https://via.placeholder.com/100',
-        },
-      ],
-    },
-    {
-      id: '2',
-      orderNumber: '#ORD002',
-      date: '20/10/2024',
-      total: '890,000₫',
-      status: 'Đang giao',
-      items: [
-        {
-          id: '3',
-          name: 'Giày thể thao',
-          quantity: 1,
-          price: '890,000₫',
-          image: 'https://via.placeholder.com/100',
-        },
-      ],
-    },
-    {
-      id: '3',
-      orderNumber: '#ORD003',
-      date: '15/10/2024',
-      total: '450,000₫',
-      status: 'Đã hủy',
-      items: [
-        {
-          id: '4',
-          name: 'Áo khoác',
-          quantity: 1,
-          price: '450,000₫',
-          image: 'https://via.placeholder.com/100',
-        },
-      ],
-    },
-  ];
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('Pending');
+  const [refreshing, setRefreshing] = useState(false);
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'Đã giao':
-        return '#4CAF50';
-      case 'Đang giao':
-        return '#2196F3';
-      case 'Đã hủy':
-        return '#F44336';
-      default:
-        return '#757575';
+  const tabs = ['Pending', 'Completed', 'Cancelled', 'Deny'];
+
+  const fetchOrders = async () => {
+    try {
+      const data = await getAllOrders();
+      setOrders(data);
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const renderOrderItem = ({ item }) => (
-    <TouchableOpacity
-      style={styles.orderCard}
-      onPress={() => navigation.navigate('OrderDetail', { order: item })}
-    >
-      <View style={styles.orderHeader}>
-        <Text style={styles.orderNumber}>{item.orderNumber}</Text>
-        <Text style={[styles.statusText, { color: getStatusColor(item.status) }]}>
-          {item.status}
-        </Text>
-      </View>
+  useEffect(() => {
+    fetchOrders();
+  }, []);
 
-      <View style={styles.orderInfo}>
-        <Text style={styles.dateText}>{item.date}</Text>
-        <Text style={styles.itemCount}>{item.items.length} sản phẩm</Text>
-      </View>
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    fetchOrders().then(() => setRefreshing(false));
+  }, []);
 
-      <View style={styles.productsContainer}>
-        {item.items.map((product, index) => (
-          <View key={product.id} style={styles.productItem}>
-            <Image source={{ uri: product.image }} style={styles.productImage} />
-            <View style={styles.productInfo}>
-              <Text style={styles.productName} numberOfLines={1}>
-                {product.name}
-              </Text>
-              <Text style={styles.quantityText}>x{product.quantity}</Text>
-            </View>
-          </View>
-        ))}
-      </View>
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('vi-VN', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    });
+  };
 
-      <View style={styles.orderFooter}>
-        <Text style={styles.totalLabel}>Tổng tiền:</Text>
-        <Text style={styles.totalAmount}>{item.total}</Text>
-      </View>
+  const formatPrice = (price) =>
+    new Intl.NumberFormat('vi-VN', {
+      style: 'currency',
+      currency: 'VND',
+    }).format(price);
 
-      <MaterialIcons name="chevron-right" size={24} color="#757575" style={styles.arrow} />
-    </TouchableOpacity>
-  );
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'Pending':
+        return '#f0ad4e';
+      case 'Completed':
+        return '#5cb85c';
+      case 'Cancelled':
+        return '#d9534f';
+      case 'Deny':
+        return '#292b2c';
+      default:
+        return '#0275d8';
+    }
+  };
+
+  const filteredOrders = orders.filter((order) => order.status === activeTab);
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#ba2d32" />
+      </View>
+    );
+  }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Lịch sử đơn hàng</Text>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.tabContainer}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          {tabs.map((tab) => (
+            <TouchableOpacity
+              key={tab}
+              style={[
+                styles.tab,
+                activeTab === tab && styles.activeTab,
+              ]}
+              onPress={() => setActiveTab(tab)}
+            >
+              <Text
+                style={[
+                  styles.tabText,
+                  activeTab === tab && styles.activeTabText,
+                ]}
+              >
+                {tab}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
       </View>
-      <FlatList
-        data={orders}
-        renderItem={renderOrderItem}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.listContainer}
-        showsVerticalScrollIndicator={false}
-      />
-    </View>
+
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+        style={styles.content}
+      >
+        {filteredOrders.length > 0 ? (
+          filteredOrders.map((order) => (
+            <TouchableOpacity
+              key={order._id}
+              style={styles.orderCard}
+              onPress={() => navigation.navigate('OrderDetail', { orderId: order._id })}
+            >
+              <View style={styles.orderHeader}>
+                <Text style={styles.orderId}>Đơn hàng #{order._id.slice(-8)}</Text>
+                <View
+                  style={[
+                    styles.statusBadge,
+                    { backgroundColor: getStatusColor(order.status) },
+                  ]}
+                >
+                  <Text style={styles.statusText}>{order.status}</Text>
+                </View>
+              </View>
+
+              <View style={styles.orderInfo}>
+                <View style={styles.infoRow}>
+                  <MaterialIcons name="access-time" size={16} color="#666" />
+                  <Text style={styles.infoText}>
+                    {formatDate(order.createdAt)}
+                  </Text>
+                </View>
+
+                <View style={styles.infoRow}>
+                  <MaterialIcons name="location-on" size={16} color="#666" />
+                  <Text style={styles.infoText} numberOfLines={1}>
+                    {order.address}
+                  </Text>
+                </View>
+
+                <View style={styles.infoRow}>
+                  <MaterialIcons name="payment" size={16} color="#666" />
+                  <Text style={styles.infoText}>
+                    {order.paymentStatus}
+                  </Text>
+                </View>
+
+                <View style={styles.totalRow}>
+                  <Text style={styles.totalLabel}>Tổng tiền:</Text>
+                  <Text style={styles.totalValue}>
+                    {formatPrice(order.totalPrice)}
+                  </Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+          ))
+        ) : (
+          <View style={styles.emptyContainer}>
+            <MaterialIcons name="shopping-cart" size={48} color="#ccc" />
+            <Text style={styles.emptyText}>
+              Không có đơn hàng nào trong trạng thái {activeTab}
+            </Text>
+          </View>
+        )}
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#f5f5f5',
+  },
+  loadingContainer: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  tabContainer: {
+    backgroundColor: '#fff',
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  tab: {
+    paddingHorizontal: 20,
+    paddingVertical: 8,
+    marginHorizontal: 4,
+    borderRadius: 20,
+    backgroundColor: '#f5f5f5',
+  },
+  activeTab: {
+    backgroundColor: '#ba2d32',
+  },
+  tabText: {
+    fontSize: 14,
+    color: '#666',
+  },
+  activeTabText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  content: {
+    flex: 1,
+    padding: 16,
+  },
+  orderCard: {
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    padding: 16,
+    marginBottom: 16,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  orderHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  orderId: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  statusBadge: {
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  statusText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  orderInfo: {
+    marginTop: 8,
+  },
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  infoText: {
+    marginLeft: 8,
+    color: '#666',
+    flex: 1,
+  },
+  totalRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 8,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: '#eee',
+  },
+  totalLabel: {
+    fontSize: 14,
+    color: '#666',
+  },
+  totalValue: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#ba2d32',
+  },
+  emptyContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 32,
+    marginTop: 60,
+  },
+  emptyText: {
+    marginTop: 16,
+    color: '#666',
+    textAlign: 'center',
   },
 });
 

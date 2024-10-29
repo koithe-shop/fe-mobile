@@ -13,6 +13,7 @@ import {
 import { MaterialIcons, AntDesign, Feather } from "@expo/vector-icons";
 import { getProductById, getProductsByCategoryId } from "../api/productApi";
 import { useAsyncStorage } from "../context/AsyncStorageContext";
+import { getFeedbackByCategory } from "../api/feedbackApi";
 
 const DetailItem = ({ label, value }) => (
   <View style={styles.detailItem}>
@@ -30,8 +31,8 @@ const ProductDetailScreen = ({ navigation, route }) => {
   const [error, setError] = useState(null);
   const [product, setProduct] = useState(null);
   const { data: cartItems, saveData } = useAsyncStorage();
-
-  console.log(productId);
+  const [feedbacks, setFeedbacks] = useState([]);
+  const [averageRating, setAverageRating] = useState(0);
 
   useEffect(() => {
     if (productId) {
@@ -42,14 +43,14 @@ const ProductDetailScreen = ({ navigation, route }) => {
   useEffect(() => {
     navigation.setOptions({
       headerRight: () => (
-        <View style={[styles.headerRight, { zIndex: 999 }]}>
+        <View style={styles.headerRight}>
           <TouchableOpacity
             style={styles.headerIcon}
             onPress={() => navigation.navigate("Cart")}
           >
             <Feather name="shopping-cart" size={24} color="#fff" />
           </TouchableOpacity>
-          <View style={[styles.menuContainer, { position: "relative" }]}>
+          <View style={styles.menuContainer}>
             <TouchableOpacity
               style={styles.headerIcon}
               onPress={handleOptionsPress}
@@ -63,7 +64,7 @@ const ProductDetailScreen = ({ navigation, route }) => {
                   style={styles.overlay}
                   onPress={() => setShowOptions(false)}
                 />
-                <View style={[styles.optionsMenu, { zIndex: 9999 }]}>
+                <View style={styles.optionsMenu}>
                   <TouchableOpacity
                     style={styles.optionItem}
                     onPress={() => {
@@ -90,18 +91,26 @@ const ProductDetailScreen = ({ navigation, route }) => {
     try {
       setLoading(true);
       const productData = await getProductById(id);
-      console.log("Fetched Product Data:", productData);
       setProduct(productData);
 
       if (productData?.categoryId?._id) {
-        const relatedData = await getProductsByCategoryId(
-          productData.categoryId._id
-        );
-        console.log("Related Products Data:", relatedData);
+        const [relatedData, feedbackData] = await Promise.all([
+          getProductsByCategoryId(productData.categoryId._id),
+          getFeedbackByCategory(productData.categoryId._id),
+        ]);
+
         const filteredRelated = relatedData
           .filter((item) => item._id !== productId)
           .slice(0, 2);
         setRelatedProducts(filteredRelated);
+        setFeedbacks(feedbackData.slice(0, 3));
+
+        const avgRating =
+          feedbackData.length > 0
+            ? feedbackData.reduce((acc, curr) => acc + curr.rating, 0) /
+              feedbackData.length
+            : 0;
+        setAverageRating(avgRating);
       }
 
       setError(null);
@@ -111,24 +120,6 @@ const ProductDetailScreen = ({ navigation, route }) => {
       setLoading(false);
     }
   };
-
-  const reviews = [
-    {
-      name: "Nguyen Van A",
-      rating: 5,
-      text: "Cá rất đẹp, khỏe mạnh, giao hàng nhanh",
-      date: "15/03/2024",
-    },
-    {
-      name: "Tran Thi B",
-      rating: 4,
-      text: "Cá bơi rất khỏe, màu sắc tươi sáng",
-      date: "10/03/2024",
-    },
-  ];
-
-  const averageRating = 4.5;
-  const totalReviews = reviews.length;
 
   const renderStars = (rating) => {
     return [...Array(5)].map((_, index) => (
@@ -141,30 +132,10 @@ const ProductDetailScreen = ({ navigation, route }) => {
     ));
   };
 
-  const getInitial = (name) => {
-    return name.charAt(0).toUpperCase();
-  };
-
-  const getRandomColor = (initial) => {
-    const colors = [
-      "#FF6B6B",
-      "#4ECDC4",
-      "#45B7D1",
-      "#96CEB4",
-      "#FFEEAD",
-      "#D4A5A5",
-      "#9B59B6",
-      "#3498DB",
-      "#E67E22",
-      "#2ECC71",
-    ];
-    return colors[initial.charCodeAt(0) % colors.length];
-  };
-
   const handleCheckout = () => {
-    const selectedProduct = product;
+    if (!product) return;
     navigation.navigate("Checkout", {
-      products: [selectedProduct],
+      products: [product],
     });
   };
 
@@ -240,21 +211,21 @@ const ProductDetailScreen = ({ navigation, route }) => {
       )}
     </>
   );
+
   const handleAddToCart = () => {
-    if (product) {
-      if (cartItems) {
-        const existingItem = cartItems.find((item) => item._id === product._id);
-        if (existingItem) {
-          Alert.alert("Thông báo", "Sản phẩm đã được thêm vào giỏ hàng");
-        } else {
-          saveData([...cartItems, { ...product, quantity: 1 }]);
-          Alert.alert("Thông báo", "Thêm vào giỏ hàng thành công");
-        }
-      } else {
-        saveData([{ ...product, quantity: 1 }]);
-        Alert.alert("Thông báo", "Thêm vào giỏ hàng thành công");
+    if (!product) return;
+
+    if (cartItems) {
+      const existingItem = cartItems.find((item) => item._id === product._id);
+      if (existingItem) {
+        Alert.alert("Thông báo", "Sản phẩm đã được thêm vào giỏ hàng");
+        return;
       }
+      saveData([...cartItems, { ...product, quantity: 1 }]);
+    } else {
+      saveData([{ ...product, quantity: 1 }]);
     }
+    Alert.alert("Thông báo", "Thêm vào giỏ hàng thành công");
   };
 
   if (loading) {
@@ -271,7 +242,7 @@ const ProductDetailScreen = ({ navigation, route }) => {
         <Text style={styles.errorText}>{error}</Text>
         <TouchableOpacity
           style={styles.retryButton}
-          onPress={fetchProductDetails}
+          onPress={() => fetchProductDetails(productId)}
         >
           <Text style={styles.retryButtonText}>Thử lại</Text>
         </TouchableOpacity>
@@ -289,13 +260,6 @@ const ProductDetailScreen = ({ navigation, route }) => {
 
   return (
     <View style={styles.container}>
-      {showOptions && (
-        <Pressable
-          style={styles.overlay}
-          onPress={() => setShowOptions(false)}
-        />
-      )}
-
       <ScrollView style={styles.scrollContent}>
         <Image
           source={{
@@ -303,9 +267,6 @@ const ProductDetailScreen = ({ navigation, route }) => {
           }}
           style={styles.productImage}
           resizeMode="cover"
-          onError={(e) => {
-            e.nativeEvent.target.src = "https://via.placeholder.com/300";
-          }}
         />
 
         <View style={styles.productInfo}>
@@ -319,6 +280,7 @@ const ProductDetailScreen = ({ navigation, route }) => {
             }).format(product.price)}
           </Text>
         </View>
+
         <View style={styles.section}>
           <TouchableOpacity
             style={styles.sectionHeader}
@@ -346,39 +308,60 @@ const ProductDetailScreen = ({ navigation, route }) => {
           <View style={styles.reviewHeader}>
             <Text style={styles.sectionTitle}>Đánh giá từ khách hàng</Text>
             <TouchableOpacity
-              onPress={() =>
-                navigation.navigate("Reviews", { productId: product._id })
-              }
+              onPress={() => {
+                if (
+                  product?.categoryId?._id &&
+                  product?.categoryId?.categoryName
+                ) {
+                  navigation.navigate("Feedback", {
+                    categoryId: product.categoryId._id,
+                    categoryName: product.categoryId.categoryName,
+                  });
+                } else {
+                  Alert.alert(
+                    "Thông báo",
+                    "Không thể xem đánh giá do thiếu thông tin danh mục"
+                  );
+                }
+              }}
             >
               <Text style={styles.viewAll}>Xem tất cả</Text>
             </TouchableOpacity>
           </View>
-          <View style={styles.ratingOverview}>
-            <View style={styles.stars}>{renderStars(averageRating)}</View>
-            <Text style={styles.ratingText}>
-              {averageRating}/5 ({totalReviews} đánh giá)
-            </Text>
-          </View>
-          {reviews.map((review, index) => (
-            <View key={index} style={styles.reviewItem}>
-              <View
-                style={[
-                  styles.reviewerAvatarInitial,
-                  { backgroundColor: getRandomColor(getInitial(review.name)) },
-                ]}
-              >
-                <Text style={styles.initialText}>
-                  {getInitial(review.name)}
+
+          {feedbacks.length > 0 ? (
+            <>
+              <View style={styles.ratingOverview}>
+                <View style={styles.stars}>
+                  {renderStars(Math.round(averageRating))}
+                </View>
+                <Text style={styles.ratingText}>
+                  {averageRating.toFixed(1)}/5 ({feedbacks.length} đánh giá)
                 </Text>
               </View>
-              <View style={styles.reviewContent}>
-                <Text style={styles.reviewerName}>{review.name}</Text>
-                <View style={styles.stars}>{renderStars(review.rating)}</View>
-                <Text style={styles.reviewText}>{review.text}</Text>
-                <Text style={styles.reviewDate}>{review.date}</Text>
-              </View>
+              {feedbacks.map((feedback) => (
+                <View key={feedback._id} style={styles.reviewItem}>
+                  <View style={styles.reviewContent}>
+                    <View style={styles.stars}>
+                      {renderStars(feedback.rating)}
+                    </View>
+                    <Text style={styles.reviewText}>
+                      {feedback.description}
+                    </Text>
+                    <Text style={styles.reviewDate}>
+                      {new Date(feedback.date).toLocaleDateString("vi-VN")}
+                    </Text>
+                  </View>
+                </View>
+              ))}
+            </>
+          ) : (
+            <View style={styles.noFeedbackContainer}>
+              <Text style={styles.noFeedbackText}>
+                Chưa có đánh giá nào cho sản phẩm này
+              </Text>
             </View>
-          ))}
+          )}
         </View>
 
         {relatedProducts.length > 0 && (
@@ -419,14 +402,21 @@ const ProductDetailScreen = ({ navigation, route }) => {
       </ScrollView>
 
       <View style={styles.bottomButtons}>
+        {product.status !== "Sold" && (
+          <TouchableOpacity
+            style={[styles.button, styles.cartButton]}
+            onPress={handleAddToCart}
+          >
+            <Feather name="shopping-cart" size={24} color="#fff" />
+          </TouchableOpacity>
+        )}
         <TouchableOpacity
-          style={[styles.button, styles.cartButton]}
-          onPress={handleAddToCart}
-        >
-          <Feather name="shopping-cart" size={24} color="#fff" />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.button, styles.buyButton]}
+          style={[
+            styles.button,
+            styles.buyButton,
+            product.status === "Sold" && { opacity: 0.5 },
+            product.status === "Sold" && { marginLeft: 0 },
+          ]}
           onPress={handleCheckout}
           disabled={product.status === "Sold"}
         >
