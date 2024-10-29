@@ -28,42 +28,41 @@ const BreedScreen = () => {
         setLoading(false);
       }
     };
-    
 
     fetchCategories();
   }, []);
 
   const navigation = useNavigation();
 
-  const renderStars = (rating) => {
-    const fullStars = Math.floor(rating);
-    const hasHalfStar = rating % 1 >= 0.1;
-    return [...Array(5)].map((_, index) => {
-      if (index < fullStars) {
-        return (
-          <MaterialIcons key={index} name="star" size={24} color="#ffca28" />
-        );
-      } else if (index === fullStars && hasHalfStar) {
-        return (
-          <MaterialIcons
-            key={index}
-            name="star-half"
-            size={24}
-            color="#ffca28"
-          />
-        );
-      } else {
-        return (
-          <MaterialIcons
-            key={index}
-            name="star-border"
-            size={24}
-            color="#ffca28"
-          />
-        );
-      }
-    });
-  };
+  // const renderStars = (rating) => {
+  //   const fullStars = Math.floor(rating);
+  //   const hasHalfStar = rating % 1 >= 0.1;
+  //   return [...Array(5)].map((_, index) => {
+  //     if (index < fullStars) {
+  //       return (
+  //         <MaterialIcons key={index} name="star" size={24} color="#ffca28" />
+  //       );
+  //     } else if (index === fullStars && hasHalfStar) {
+  //       return (
+  //         <MaterialIcons
+  //           key={index}
+  //           name="star-half"
+  //           size={24}
+  //           color="#ffca28"
+  //         />
+  //       );
+  //     } else {
+  //       return (
+  //         <MaterialIcons
+  //           key={index}
+  //           name="star-border"
+  //           size={24}
+  //           color="#ffca28"
+  //         />
+  //       );
+  //     }
+  //   });
+  // };
 
   const renderBreedItem = ({ item }) => (
     <Pressable

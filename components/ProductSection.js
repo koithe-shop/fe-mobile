@@ -15,7 +15,9 @@ const KoiFish = ({ navigation, products }) => {
   const renderItem = ({ item }) => (
     <Pressable
       style={styles.fishCard}
-      onPress={() => navigation.navigate("ProductDetail", { productId: item._id })}
+      onPress={() =>
+        navigation.navigate("ProductDetail", { productId: item._id })
+      }
     >
       <Image
         source={{ uri: item.image[0] }}
@@ -25,7 +27,17 @@ const KoiFish = ({ navigation, products }) => {
       <Text style={styles.fishName} numberOfLines={1} ellipsizeMode="tail">
         {item.productName}
       </Text>
-      <Text style={styles.fishPrice}>{item.price}</Text>
+      <Text style={styles.fishCategory} numberOfLines={1} ellipsizeMode="tail">
+        {item?.categoryId?.categoryName
+          ? "(" + item.categoryId.categoryName + ")"
+          : "(Không xác định)"}
+      </Text>
+      <Text style={styles.fishPrice}>
+        {new Intl.NumberFormat("vi-VN", {
+          style: "currency",
+          currency: "VND",
+        }).format(item.price)}
+      </Text>
     </Pressable>
   );
 
@@ -110,6 +122,13 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     paddingHorizontal: 10,
     fontSize: 16,
+  },
+  fishCategory: {
+    textAlign: "left",
+    width: "100%",
+    marginTop: 5,
+    paddingHorizontal: 10,
+    fontSize: 13,
   },
   fishPrice: {
     marginTop: 5,

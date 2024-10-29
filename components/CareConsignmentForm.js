@@ -26,8 +26,8 @@ const CareConsignmentForm = ({
   );
 
   const options = [
-    { label: "Normal", price: 50000 },
-    { label: "Special", price: 100000 },
+    { label: "Normal", price: 100000 },
+    { label: "Special", price: 150000 },
   ];
 
   const handleStartDateChange = (event, selectedDate) => {
@@ -41,10 +41,36 @@ const CareConsignmentForm = ({
   };
 
   const handleSubmit = () => {
+    const today = new Date(); // Get today's date
+    today.setHours(0, 0, 0, 0); // Set time to midnight for accurate comparison
+
+    if (!careType) {
+      alert("Vui lòng chọn loại chăm sóc.");
+      return;
+    }
+
+    if (!startDate) {
+      alert("Vui lòng chọn ngày bắt đầu.");
+      return;
+    }
+
+    if (startDate < today) {
+      alert("Ngày bắt đầu phải lớn hơn ngày hôm nay."); // Alert if start date is in the past
+      return;
+    }
+
+    if (!endDate) {
+      alert("Vui lòng chọn ngày kết thúc.");
+      return;
+    }
+
+    if (endDate < startDate) {
+      alert("Ngày kết thúc phải sau ngày bắt đầu.");
+      return;
+    }
+
     const consignmentData = {
-      userId: "exampleUserId", // Replace with actual user ID from context or props
-      productId: "exampleProductId", // Replace with actual product ID
-      careType,
+      careType: careType,
       startDate: startDate.toISOString().split("T")[0], // Format to YYYY-MM-DD
       endDate: endDate.toISOString().split("T")[0], // Format to YYYY-MM-DD
     };
@@ -66,6 +92,12 @@ const CareConsignmentForm = ({
       setStartDate(new Date(initialData.startDate));
       setEndDate(new Date(initialData.endDate));
     }
+    const fetchUserId = async () => {
+      const storedUserId = await AsyncStorage.getItem("userId");
+      if (storedUserId) {
+        setOwnerId(storedUserId); // Set ownerId with userId from AsyncStorage
+      }
+    };
   }, [initialData]);
 
   return (

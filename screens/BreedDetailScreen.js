@@ -6,28 +6,18 @@ import {
   FlatList,
   SafeAreaView,
   ActivityIndicator,
+  TouchableOpacity,
+  Modal,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { SceneMap, TabBar, TabView } from "react-native-tab-view";
 import Product from "../components/Product";
 import RatingList from "../components/RatingList";
 import { getProductsByCategoryId } from "../api/productApi";
+import { getFeedbackByCategory } from "../api/feedbackApi";
+import MaterialIcons from "react-native-vector-icons/MaterialIcons"; // Ensure you import this
+import { getCategoryById } from "../api/categoryApi";
 
-const ratings = [
-  {
-    id: "1",
-    comment: "Beautiful fish, very healthy!",
-    star: 5,
-  },
-  {
-    id: "2",
-    comment: "Great color and size.",
-    star: 4,
-  },
-  // ... other ratings
-];
-
-// Scenes for each tab
 const ProductRoute = ({ products, loading, error }) => {
   if (loading) {
     return <ActivityIndicator size="large" color="#ffca28" />;
@@ -52,22 +42,25 @@ const ProductRoute = ({ products, loading, error }) => {
   return (
     <FlatList
       data={products}
-      keyExtractor={(item) => item.id}
+      keyExtractor={(item) => item._id.toString()}
       numColumns={2} // Renders products in two columns
       renderItem={({ item }) => <Product item={item} />} // Calls the Product component
     />
   );
 };
 
-const RatingRoute = () => <RatingList item={ratings} />;
+const RatingRoute = ({ feedbacks, loading, error }) => (
+  <RatingList feedbacks={feedbacks} />
+);
 
-export default function BreedDetail({ route }) {
+export default function BreedDetail({ route, navigation }) {
   const [products, setProducts] = useState([]);
+  const [feedbacks, setFeedbacks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+  const [showModal, setShowModal] = useState(false); // State to manage modal visibility
   const { categoryId } = route.params; // Lấy id từ params
-  console.log(categoryId);
+  const [category, setCategory] = useState(null);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -80,11 +73,53 @@ export default function BreedDetail({ route }) {
         setLoading(false);
       }
     };
+    const fetchFeedbacks = async () => {
+      try {
+        const data = await getFeedbackByCategory(categoryId);
+        setFeedbacks(data);
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    const fetchCategory = async () => {
+      try {
+        const fetchedCategory = await getCategoryById(categoryId);
+        setCategory(fetchedCategory);
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
 
     if (categoryId) {
       fetchProducts(); // Call the function only if categoryId is available
+      fetchFeedbacks(); // Call the function only if categoryId is available
+      fetchCategory();
     }
   }, []);
+
+  useEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <View style={styles.headerRight}>
+          <TouchableOpacity
+            style={styles.headerIcon}
+            onPress={() => setShowModal(true)} // Show modal when pressed
+          >
+            <MaterialIcons name="more-vert" size={24} color="#fff" />
+          </TouchableOpacity>
+        </View>
+      ),
+    });
+  }, [navigation]);
+
+  const handleBackToHome = () => {
+    navigation.navigate("Home");
+    setShowModal(false); // Close modal after navigating
+  };
 
   const [index, setIndex] = useState(0);
   const [routes] = useState([
@@ -96,7 +131,9 @@ export default function BreedDetail({ route }) {
     products: () => (
       <ProductRoute products={products} loading={loading} error={error} />
     ),
-    ratings: RatingRoute,
+    ratings: () => (
+      <RatingRoute feedbacks={feedbacks} loading={loading} error={error} />
+    ),
   });
 
   const renderTabBar = (props) => (
@@ -127,6 +164,31 @@ export default function BreedDetail({ route }) {
         initialLayout={{ width: "100%" }}
         renderTabBar={renderTabBar}
       />
+      {/* Modal for Options */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={showModal}
+        onRequestClose={() => setShowModal(false)} // Handle back button press
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Options</Text>
+            <TouchableOpacity
+              style={styles.backButton}
+              onPress={handleBackToHome}
+            >
+              <Text style={styles.backButtonText}>Back to Home</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setShowModal(false)} // Close the modal
+            >
+              <Text style={styles.closeButtonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -166,5 +228,49 @@ const styles = StyleSheet.create({
     marginTop: 20,
     fontSize: 18,
     color: "#888",
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.5)", // Semi-transparent background
+  },
+  modalContent: {
+    width: "80%",
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    padding: 20,
+    alignItems: "center",
+    elevation: 5,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 20,
+  },
+  backButton: {
+    backgroundColor: "transparent",
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 10,
+    width: "100%",
+    alignItems: "center",
+    // borderBottomWidth: 1,
+    // borderBottomColor: "#333",
+  },
+  backButtonText: {
+    color: "#000",
+    fontWeight: "bold",
+  },
+  closeButton: {
+    // backgroundColor: "#f44336",
+    padding: 10,
+    borderRadius: 5,
+    width: "100%",
+    alignItems: "center",
+  },
+  closeButtonText: {
+    color: "#f44336",
+    fontWeight: "bold",
   },
 });
