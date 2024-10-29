@@ -60,8 +60,20 @@ const CheckoutScreen = ({ route, navigation }) => {
     try {
       const result = await createOrder(orderData);
       await removeItems(products.map(item => item._id));
-      Alert.alert("Success", "Đặt hàng thành công!");
-      navigation.navigate("OrderStack");
+      Alert.alert("Success", "Đặt hàng thành công!", [
+        {
+          text: "OK",
+          onPress: () => {
+            navigation.reset({
+              index: 1,
+              routes: [
+                { name: 'HomeStack' },  
+                { name: 'OrderStack' }  
+              ],
+            });
+          }
+        }
+      ]);
     } catch (error) {
       Alert.alert(
         "Error",
