@@ -8,6 +8,7 @@ import {
   Platform,
   View,
   TouchableOpacity,
+  Image,
 } from "react-native";
 import ProductForm from "../components/ProductForm";
 import CareConsignmentForm from "../components/CareConsignmentForm";
@@ -23,6 +24,7 @@ export default function ConsignmentCareScreen({ navigation }) {
   const [genotypes, setGenotypes] = useState([]);
   const [loading, setLoading] = useState(true); // State for loading
   const [error, setError] = useState(null); // State for error handling
+  console.log(consignmentData);
   console.log(productData);
 
   useEffect(() => {
@@ -122,7 +124,40 @@ export default function ConsignmentCareScreen({ navigation }) {
 
           {step === 3 && (
             <View style={styles.stepContainer}>
-              <Text style={styles.subHeader}>Bạn Chắc chưa?</Text>
+              <Text style={styles.subHeader}>Xác nhận ký gửi chăm sóc</Text>
+              {consignmentData && (
+                <View style={styles.confirmationDetails}>
+                  <Text style={styles.detailText}>
+                    <Text style={styles.bold}>Loại chăm sóc:</Text>
+                    {consignmentData.careType}
+                  </Text>
+                  <Text style={styles.detailText}>
+                    <Text style={styles.bold}>Ngày bắt đầu:</Text>
+                    {consignmentData.startDate}
+                  </Text>
+                  <Text style={styles.detailText}>
+                    <Text style={styles.bold}>Ngày kết thúc:</Text>
+                    {consignmentData.endDate}
+                  </Text>
+                  <Text style={styles.detailText}>
+                    <Text style={styles.bold}>Sản phẩm:</Text>
+                    {productData.productName}
+                  </Text>
+                  <Text style={styles.detailText}>
+                    <Text style={styles.bold}>Hình ảnh sản phẩm:</Text>
+                  </Text>
+                  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                    {productImages.map((image, index) => (
+                      <Image
+                        key={index}
+                        source={{ uri: image }}
+                        style={styles.imagePreview}
+                      />
+                    ))}
+                  </ScrollView>
+                </View>
+              )}
+
               <TouchableOpacity onPress={handleCheckout} style={styles.button}>
                 <Text style={styles.buttonText}>Tạo ký gửi chăm sóc</Text>
               </TouchableOpacity>
@@ -203,5 +238,32 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontWeight: "bold",
     fontSize: 16,
+  },
+  confirmationDetails: {
+    padding: 20,
+    marginVertical: 10,
+    backgroundColor: "#F0F0F0",
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 5,
+  },
+
+  detailText: {
+    fontSize: 16,
+    color: "#333",
+    marginVertical: 5,
+  },
+
+  bold: {
+    fontWeight: "bold",
+  },
+
+  imagePreview: {
+    width: 100,
+    height: 100,
+    borderRadius: 10,
+    marginRight: 10,
   },
 });
