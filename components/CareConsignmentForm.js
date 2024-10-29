@@ -70,9 +70,7 @@ const CareConsignmentForm = ({
     }
 
     const consignmentData = {
-      userId: "exampleUserId", // Replace with actual user ID from context or props
-      productId: "exampleProductId", // Replace with actual product ID
-      careType,
+      careType: careType,
       startDate: startDate.toISOString().split("T")[0], // Format to YYYY-MM-DD
       endDate: endDate.toISOString().split("T")[0], // Format to YYYY-MM-DD
     };
@@ -94,6 +92,12 @@ const CareConsignmentForm = ({
       setStartDate(new Date(initialData.startDate));
       setEndDate(new Date(initialData.endDate));
     }
+    const fetchUserId = async () => {
+      const storedUserId = await AsyncStorage.getItem("userId");
+      if (storedUserId) {
+        setOwnerId(storedUserId); // Set ownerId with userId from AsyncStorage
+      }
+    };
   }, [initialData]);
 
   return (

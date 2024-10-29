@@ -3,7 +3,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export const getAllProduct = async () => {
   try {
-    const token = await AsyncStorage.getItem("userToken"); 
+    const token = await AsyncStorage.getItem("userToken");
     const response = await fetch(`${API_URL}/products`, {
       method: "GET",
       headers: {
@@ -25,7 +25,7 @@ export const getAllProduct = async () => {
 };
 export const getProductsByCategoryId = async (categoryId) => {
   try {
-    const token = await AsyncStorage.getItem("userToken"); 
+    const token = await AsyncStorage.getItem("userToken");
     const response = await fetch(`${API_URL}/products/category/${categoryId}`, {
       method: "GET",
       headers: {
@@ -50,7 +50,7 @@ export const getProductsByCategoryId = async (categoryId) => {
 
 export const getProductById = async (productId) => {
   try {
-    const token = await AsyncStorage.getItem("userToken"); 
+    const token = await AsyncStorage.getItem("userToken");
     const response = await fetch(`${API_URL}/products/${productId}`, {
       method: "GET",
       headers: {
@@ -70,7 +70,7 @@ export const getProductById = async (productId) => {
     throw error;
   }
 };
-export const createConsignedCare = async (consignmentData, token) => {
+export const createProductConsignedCare = async (consignmentData) => {
   try {
     const token = await AsyncStorage.getItem("token"); // Retrieve token if required
     const response = await fetch(`${API_URL}/products/consigned-care`, {

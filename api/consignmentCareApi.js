@@ -36,13 +36,21 @@ export const createConsignmentCare = async (consignmentData) => {
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || "Không thể tạo consignment care");
+      // Attempt to parse error as JSON; if not JSON, throw as text.
+      try {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Không thể tạo consignment care");
+      } catch (jsonError) {
+        const errorText = await response.text(); // Log non-JSON error message
+        console.error("Non-JSON error response:", errorText);
+        throw new Error("Server error: " + errorText);
+      }
     }
 
     const data = await response.json();
     return data;
   } catch (error) {
+    console.error("Error in createConsignmentCare:", error.message);
     throw error;
   }
 };
