@@ -4,13 +4,13 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 export const createOrder = async (orderData) => {
   try {
     // Retrieve token if needed (uncomment if using authentication)
-    // const token = await AsyncStorage.getItem("token"); 
+    const token = await AsyncStorage.getItem("userToken"); 
 
     const response = await fetch(`${API_URL}/orders`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        // Authorization: `Bearer ${token}`, // Add token if required
+        Authorization: `Bearer ${token}`, // Add token if required
       },
       body: JSON.stringify(orderData),
     });
@@ -29,11 +29,12 @@ export const createOrder = async (orderData) => {
 
 export const getAllOrders = async () => {
   try {
+    const token = await AsyncStorage.getItem("userToken"); 
     const response = await fetch(`${API_URL}/orders`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        // Authorization: `Bearer ${token}`, // Add token if required
+        Authorization: `Bearer ${token}`, // Add token if required
       },
     });
 
@@ -51,11 +52,12 @@ export const getAllOrders = async () => {
 
 export const getOrderById = async (orderId) => {
   try {
+    const token = await AsyncStorage.getItem("userToken"); 
     const response = await fetch(`${API_URL}/orders/${orderId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        // Authorization: `Bearer ${token}`, // Add token if required
+        Authorization: `Bearer ${token}`, // Add token if required
       },
     });
 
@@ -73,11 +75,12 @@ export const getOrderById = async (orderId) => {
 
 export const changePaymentStatus = async (orderId, paymentStatus) => {
   try {
+    const token = await AsyncStorage.getItem("userToken"); 
     const response = await fetch(`${API_URL}/orders/change-payment-status/${orderId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
-        // Authorization: `Bearer ${token}`, // Add token if required
+        Authorization: `Bearer ${token}`, // Add token if required
       },
       body: JSON.stringify({ paymentStatus }), 
     });

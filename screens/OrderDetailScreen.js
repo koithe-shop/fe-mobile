@@ -63,7 +63,19 @@ const OrderDetailScreen = ({ route, navigation }) => {
         return "#0275d8";
     }
   };
-
+  const getPaymentStatusColor = (paymentStatus) => {
+    switch (paymentStatus) {
+      case "Pending":
+        return "#f0ad4e";
+      case "Success":
+        return "#5cb85c";
+      case "Cancelled":
+        return "#d9534f";
+        lled;
+      default:
+        return "#0275d8";
+    }
+  };
   const handleProductPress = (productId) => {
     navigation.navigate("ProductDetail", { productId });
   };
@@ -175,15 +187,16 @@ const OrderDetailScreen = ({ route, navigation }) => {
                 style={[
                   styles.paymentStatus,
                   {
-                    backgroundColor:
-                      order.paymentStatus === "Paid" ? "#5cb85c" : "#f0ad4e",
+                    backgroundColor: getPaymentStatusColor(order.paymentStatus),
                   },
                 ]}
               >
                 <Text style={styles.paymentStatusText}>
-                  {order.paymentStatus === "Paid"
+                  {order.paymentStatus === "Success"
                     ? "Đã thanh toán"
-                    : "Chưa thanh toán"}
+                    : order.paymentStatus === "Pending"
+                    ? "Chưa thanh toán"
+                    : "Đã hủy"}
                 </Text>
               </View>
             </View>

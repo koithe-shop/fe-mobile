@@ -3,11 +3,12 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export const createFeedback = async (feedbackData) => {
   try {
+    const token = await AsyncStorage.getItem("userToken"); 
     const response = await fetch(`${API_URL}/feedback`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        // Authorization: `Bearer ${token}`, // Add token if required
+        Authorization: `Bearer ${token}`, // Add token if required
       },
       body: JSON.stringify(feedbackData),
     });
@@ -26,11 +27,12 @@ export const createFeedback = async (feedbackData) => {
 
 export const getAllFeedback = async () => {
   try {
+    const token = await AsyncStorage.getItem("userToken"); 
     const response = await fetch(`${API_URL}/feedback`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        // Authorization: `Bearer ${token}`, // Add token if required
+        Authorization: `Bearer ${token}`, // Add token if required
       },
     });
 
@@ -48,11 +50,12 @@ export const getAllFeedback = async () => {
 
 export const getFeedbackById = async (feedbackId) => {
   try {
+    const token = await AsyncStorage.getItem("userToken"); 
     const response = await fetch(`${API_URL}/feedback/${feedbackId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        // Authorization: `Bearer ${token}`, // Add token if required
+        Authorization: `Bearer ${token}`, // Add token if required
       },
     });
 
@@ -70,11 +73,12 @@ export const getFeedbackById = async (feedbackId) => {
 
 export const updateFeedback = async (feedbackId, feedbackData) => {
   try {
+    const token = await AsyncStorage.getItem("userToken"); 
     const response = await fetch(`${API_URL}/feedback/${feedbackId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
-        // Authorization: `Bearer ${token}`, // Add token if required
+        Authorization: `Bearer ${token}`, // Add token if required
       },
       body: JSON.stringify(feedbackData),
     });
@@ -93,11 +97,12 @@ export const updateFeedback = async (feedbackId, feedbackData) => {
 
 export const deleteFeedback = async (feedbackId) => {
   try {
+    const token = await AsyncStorage.getItem("userToken"); 
     const response = await fetch(`${API_URL}/feedback/${feedbackId}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
-        // Authorization: `Bearer ${token}`, // Add token if required
+        Authorization: `Bearer ${token}`, // Add token if required
       },
     });
 
@@ -115,11 +120,12 @@ export const deleteFeedback = async (feedbackId) => {
 
 export const getFeedbackByCategory = async (categoryId) => {
   try {
+    const token = await AsyncStorage.getItem("userToken"); 
     const response = await fetch(`${API_URL}/feedback/category/${categoryId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        // Authorization: `Bearer ${token}`, // Add token if required
+        Authorization: `Bearer ${token}`, // Add token if required
       },
     });
 
@@ -138,11 +144,12 @@ export const getFeedbackByCategory = async (categoryId) => {
 // Function to get feedback for a specific product
 export const getFeedbackByProduct = async (productId) => {
   try {
+    const token = await AsyncStorage.getItem("userToken"); 
     const response = await fetch(`${API_URL}/feedback/category/product/${productId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        // Authorization: `Bearer ${token}`, // Add token if required
+        Authorization: `Bearer ${token}`, // Add token if required
       },
     });
 
