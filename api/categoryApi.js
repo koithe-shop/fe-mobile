@@ -3,11 +3,12 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export const getAllCategory = async () => {
   try {
+    const token = await AsyncStorage.getItem("userToken"); 
     const response = await fetch(`${API_URL}/categories`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        // Authorization: `Bearer ${token}`, // Add token if required
+        Authorization: `Bearer ${token}`, // Add token if required
       },
     });
 

@@ -9,11 +9,14 @@ import {
   Pressable,
   ActivityIndicator,
   Alert,
+  Dimensions,
 } from "react-native";
 import { MaterialIcons, AntDesign, Feather } from "@expo/vector-icons";
 import { getProductById, getProductsByCategoryId } from "../api/productApi";
 import { useAsyncStorage } from "../context/AsyncStorageContext";
 import { getFeedbackByCategory } from "../api/feedbackApi";
+
+const { width: screenWidth } = Dimensions.get("window");
 
 const DetailItem = ({ label, value }) => (
   <View style={styles.detailItem}>
@@ -33,6 +36,7 @@ const ProductDetailScreen = ({ navigation, route }) => {
   const { data: cartItems, saveData } = useAsyncStorage();
   const [feedbacks, setFeedbacks] = useState([]);
   const [averageRating, setAverageRating] = useState(0);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
 
   useEffect(() => {
     if (productId) {
@@ -261,13 +265,43 @@ const ProductDetailScreen = ({ navigation, route }) => {
   return (
     <View style={styles.container}>
       <ScrollView style={styles.scrollContent}>
-        <Image
-          source={{
-            uri: product.image?.[0] || "https://via.placeholder.com/300",
-          }}
-          style={styles.productImage}
-          resizeMode="cover"
-        />
+        <View style={styles.imageContainer}>
+          <ScrollView
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            onScroll={({ nativeEvent }) => {
+              const slide = Math.ceil(
+                nativeEvent.contentOffset.x /
+                  nativeEvent.layoutMeasurement.width
+              );
+              if (activeImageIndex !== slide) {
+                setActiveImageIndex(slide);
+              }
+            }}
+            scrollEventThrottle={16}
+          >
+            {product.image?.map((img, index) => (
+              <Image
+                key={index}
+                source={{ uri: img || "https://via.placeholder.com/300" }}
+                style={styles.productImage}
+                resizeMode="cover"
+              />
+            ))}
+          </ScrollView>
+          <View style={styles.pagination}>
+            {product.image?.map((_, index) => (
+              <View
+                key={index}
+                style={[
+                  styles.paginationDot,
+                  index === activeImageIndex && styles.paginationDotActive,
+                ]}
+              />
+            ))}
+          </View>
+        </View>
 
         <View style={styles.productInfo}>
           <Text style={styles.productName}>{product.productName}</Text>
@@ -719,6 +753,35 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
+  },
+  imageContainer: {
+    position: 'relative',
+    height: 300,
+  },
+  productImage: {
+    width: screenWidth,
+    height: 300,
+  },
+  pagination: {
+    position: 'absolute',
+    bottom: 16,
+    flexDirection: 'row',
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  paginationDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+    margin: 4,
+  },
+  paginationDotActive: {
+    backgroundColor: '#fff',
+    width: 12,
+    height: 12,
+    borderRadius: 6,
   },
 });
 

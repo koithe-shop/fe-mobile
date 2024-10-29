@@ -8,18 +8,162 @@ import {
   Image,
   SafeAreaView,
   Alert,
+  Modal,
+  KeyboardAvoidingView,
+  Platform,
+  TouchableWithoutFeedback,
+  Keyboard
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { TextInput } from "react-native-gesture-handler";
-import { createOrder } from "../api/orderApi";
+import { changePaymentStatus, createOrder } from "../api/orderApi";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useAsyncStorage } from "../context/AsyncStorageContext";
+
+const StripePaymentSheet = ({ visible, onClose, onConfirm }) => {
+  const [cardNumber, setCardNumber] = useState('');
+  const [expiry, setExpiry] = useState('');
+  const [cvv, setCvv] = useState('');
+
+  const formatCardNumber = (text) => {
+    const cleaned = text.replace(/\s+/g, '').replace(/\D/g, '');
+    const formatted = cleaned.replace(/(\d{4})/g, '$1 ').trim();
+    return formatted.substring(0, 19);
+  };
+
+  const formatExpiry = (text) => {
+    const cleaned = text.replace(/\D/g, '');
+    if (cleaned.length >= 2) {
+      return cleaned.substring(0, 2) + '/' + cleaned.substring(2, 4);
+    }
+    return cleaned;
+  };
+
+  const formatCVV = (text) => {
+    return text.replace(/\D/g, '').substring(0, 3);
+  };
+
+  const validateForm = () => {
+    if (cardNumber.replace(/\s/g, '').length !== 16) {
+      Alert.alert('Error', 'Please enter a valid 16-digit card number');
+      return false;
+    }
+    if (expiry.length !== 5) {
+      Alert.alert('Error', 'Please enter a valid expiry date (MM/YY)');
+      return false;
+    }
+    if (cvv.length !== 3) {
+      Alert.alert('Error', 'Please enter a valid 3-digit CVV');
+      return false;
+    }
+    return true;
+  };
+
+  const handleConfirm = () => {
+    if (validateForm()) {
+      onConfirm();
+    }
+  };
+
+  return (
+    <Modal
+      animationType="slide"
+      transparent={true}
+      visible={visible}
+      onRequestClose={onClose}
+    >
+      <KeyboardAvoidingView 
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={styles.modalContainer}
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View style={styles.modalBackground}>
+            <View style={styles.modalContent}>
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle}>Payment</Text>
+                <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+                  <MaterialIcons name="close" size={24} color="#000" />
+                </TouchableOpacity>
+              </View>
+
+              <ScrollView style={styles.paymentForm} keyboardShouldPersistTaps="handled">
+                <View style={styles.cardNumberContainer}>
+                  <MaterialIcons name="credit-card" size={24} color="#666" />
+                  <TextInput
+                    style={styles.cardNumberInput}
+                    value={cardNumber}
+                    onChangeText={(text) => setCardNumber(formatCardNumber(text))}
+                    placeholder="4242 4242 4242 4242"
+                    placeholderTextColor="#bebebe"
+                    keyboardType="numeric"
+                    maxLength={19}
+                  />
+                </View>
+
+                <View style={styles.cardDetailsRow}>
+                  <View style={styles.expiryContainer}>
+                    <Text style={styles.expiryLabel}>EXP</Text>
+                    <TextInput
+                      style={styles.expiryInput}
+                      value={expiry}
+                      onChangeText={(text) => setExpiry(formatExpiry(text))}
+                      placeholder="12/24"
+                      placeholderTextColor="#bebebe"
+                      keyboardType="numeric"
+                      maxLength={5}
+                    />
+                  </View>
+                  <View style={styles.cvvContainer}>
+                  <Text style={styles.cvvLabel}>CVV</Text>
+                    <TextInput
+                      style={styles.cvvInput}
+                      value={cvv}
+                      onChangeText={(text) => setCvv(formatCVV(text))}
+                      placeholder="123"
+                      placeholderTextColor="#bebebe"
+                      keyboardType="numeric"
+                      maxLength={3}
+                      secureTextEntry
+                    />
+                  </View>
+                </View>
+
+                <TouchableOpacity style={styles.payButton} onPress={handleConfirm}>
+                  <Text style={styles.payButtonText}>Pay</Text>
+                </TouchableOpacity>
+              </ScrollView>
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
+    </Modal>
+  );
+};
 
 const CheckoutScreen = ({ route, navigation }) => {
   const { products = [] } = route.params;
   const [inputAddress, setInputAddress] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("cod");
   const { removeItems } = useAsyncStorage();
+  const [showStripeSheet, setShowStripeSheet] = useState(false);
+  const [token, setToken] = useState(null);
+  useEffect(() => {
+    const getToken = async () => {
+      try {
+        const userToken = await AsyncStorage.getItem("userToken");
+        if (!userToken) {
+          navigation.navigate("Login");
+          return;
+        }
+        setToken(userToken);
+      } catch (error) {
+        console.error("Error retrieving token:", error);
+        Alert.alert("Error", "Failed to authenticate. Please login again.");
+        navigation.navigate("Login");
+      }
+    };
+    getToken();
+  }, []);
 
   useEffect(() => {
     navigation.setOptions({
@@ -42,45 +186,62 @@ const CheckoutScreen = ({ route, navigation }) => {
       currency: "VND",
     }).format(price);
 
-  const handlePlaceOrder = async () => {
-    if (!inputAddress) {
-      Alert.alert("Lỗi", "Vui lòng nhập địa chỉ giao hàng.");
-      return;
-    }
-
-    const userId = await AsyncStorage.getItem("userId");
-
-    const orderData = {
-      userId,
-      products: products.map((item) => item._id),
-      totalPrice: calculateTotal(),
-      address: inputAddress,
-    };
-
-    try {
-      const result = await createOrder(orderData);
-      await removeItems(products.map(item => item._id));
-      Alert.alert("Success", "Đặt hàng thành công!", [
-        {
-          text: "OK",
-          onPress: () => {
-            navigation.reset({
-              index: 1,
-              routes: [
-                { name: 'HomeStack' },  
-                { name: 'OrderStack' }  
-              ],
-            });
+    const processOrder = async () => {
+      const userId = await AsyncStorage.getItem("userId");
+  
+      const orderData = {
+        userId,
+        products: products.map((item) => item._id),
+        totalPrice: calculateTotal(),
+        address: inputAddress,
+        paymentMethod,
+      };
+  
+      try {
+        const result = await createOrder(orderData, token);
+        const orderId = result._id; 
+        if (paymentMethod === "stripe") {
+          try {
+            await changePaymentStatus(orderId, "Success");
+          } catch (error) {
+            console.error("Error updating payment status:", error);
+            Alert.alert(
+              "Warning",
+              "Đơn hàng đã được tạo nhưng có lỗi khi cập nhật trạng thái thanh toán"
+            );
           }
         }
-      ]);
-    } catch (error) {
-      Alert.alert(
-        "Error",
-        error.message || "Không thể đặt hàng. Vui lòng thử lại sau."
-      );
-    }
-  };
+        await removeItems(products.map(item => item._id));
+        
+        Alert.alert(
+          "Success", 
+          `Đặt hàng thành công${paymentMethod === "stripe" ? " và đã thanh toán" : ""}!`
+        );
+        
+        navigation.navigate("OrderStack");
+      } catch (error) {
+        Alert.alert(
+          "Error",
+          error.message || "Không thể đặt hàng. Vui lòng thử lại sau."
+        );
+      }
+    };
+  
+
+    const handlePlaceOrder = async () => {
+      if (!inputAddress) {
+        Alert.alert("Lỗi", "Vui lòng nhập địa chỉ giao hàng.");
+        return;
+      }
+  
+      if (paymentMethod === "stripe") {
+        setShowStripeSheet(true);
+        return;
+      }
+  
+      await processOrder();
+    };
+  
 
   return (
     <SafeAreaView style={styles.container}>
@@ -163,6 +324,15 @@ const CheckoutScreen = ({ route, navigation }) => {
               <Text style={styles.paymentText}>Thanh toán bằng Stripe</Text>
             </TouchableOpacity>
           </View>
+
+          <StripePaymentSheet
+          visible={showStripeSheet}
+          onClose={() => setShowStripeSheet(false)}
+          onConfirm={async () => {
+            setShowStripeSheet(false);
+            await processOrder();
+          }}
+        />
 
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Chi tiết thanh toán</Text>
@@ -393,6 +563,128 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
   },
+  modalContainer: {
+    flex: 1,
+  },
+  modalBackground: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingVertical: 24,
+    paddingHorizontal: 24,
+    maxHeight: '95%', 
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  modalTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#1a1a1a',
+  },
+  closeButton: {
+    padding: 8,
+    backgroundColor: '#f5f5f5',
+    borderRadius: 12,
+  },
+  paymentForm: {
+    flexGrow: 0,
+  },
+  cardNumberContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: '#e0e0e0',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    marginBottom: 16,
+    backgroundColor: '#fff',
+  },
+  cardNumberInput: {
+    fontSize: 17,
+    marginLeft: 12,
+    flex: 1,
+    color: '#262626',
+    paddingVertical: 8,
+  },
+  cardDetailsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 24,
+  },
+  expiryContainer: {
+    flex: 1,
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    borderWidth: 1.5,
+    borderColor: '#e0e0e0',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    marginRight: 16,
+    backgroundColor: '#fff',
+  },
+  expiryLabel: {
+    fontSize: 14,
+    color: '#666',
+    marginRight: 8, 
+  },
+  expiryInput: {
+    fontSize: 17,
+    color: '#262626',
+    flex: 1, 
+  },
+  cvvContainer: {
+    flex: 1,
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    borderWidth: 1.5,
+    borderColor: '#e0e0e0',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: '#fff',
+  },
+  cvvLabel: {
+    fontSize: 14,
+    color: '#666',
+    marginRight: 8,
+  },
+  cvvInput: {
+    fontSize: 17,
+    color: '#262626',
+    flex: 1,
+  },
+  payButton: {
+    backgroundColor: '#ba2d32',
+    paddingVertical: 16,
+    borderRadius: 16,
+    marginTop: 8,
+    shadowColor: "#ba2d32",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  payButtonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+
 });
 
 export default CheckoutScreen;

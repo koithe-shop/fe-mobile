@@ -3,11 +3,12 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export const getAllProduct = async () => {
   try {
+    const token = await AsyncStorage.getItem("userToken"); 
     const response = await fetch(`${API_URL}/products`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        // Authorization: `Bearer ${token}`, // Add token if required
+        Authorization: `Bearer ${token}`, // Add token if required
       },
     });
 
@@ -24,11 +25,12 @@ export const getAllProduct = async () => {
 };
 export const getProductsByCategoryId = async (categoryId) => {
   try {
+    const token = await AsyncStorage.getItem("userToken"); 
     const response = await fetch(`${API_URL}/products/category/${categoryId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        // Authorization: `Bearer ${token}`, // Add token if required
+        Authorization: `Bearer ${token}`, // Add token if required
       },
     });
 
@@ -48,11 +50,12 @@ export const getProductsByCategoryId = async (categoryId) => {
 
 export const getProductById = async (productId) => {
   try {
+    const token = await AsyncStorage.getItem("userToken"); 
     const response = await fetch(`${API_URL}/products/${productId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        // Authorization: `Bearer ${token}`, // Add token if required
+        Authorization: `Bearer ${token}`, // Add token if required
       },
     });
 

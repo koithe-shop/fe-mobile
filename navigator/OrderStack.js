@@ -4,6 +4,7 @@ import OrderScreen from "../screens/OrderScreen";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { TouchableOpacity } from "react-native";
 import OrderDetailScreen from "../screens/OrderDetailScreen";
+import ProductDetailScreen from "../screens/ProductDetailScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -43,6 +44,14 @@ const OrderStack = ({ navigation }) => {
       />
 
       <Stack.Screen name="OrderDetail" component={OrderDetailScreen} />
+      <Stack.Screen
+          name="ProductDetail"
+          component={ProductDetailScreen}
+          options={{
+            // headerShown: false,
+            title: "Detail",
+          }}
+        />
     </Stack.Navigator>
   );
 };

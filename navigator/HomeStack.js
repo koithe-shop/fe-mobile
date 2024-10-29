@@ -16,6 +16,15 @@ import FeedbackScreen from "../screens/FeedbackScreen";
 const Stack = createNativeStackNavigator();
 
 const HomeStack = ({ navigation }) => {
+  React.useEffect(() => {
+    const unsubscribe = navigation.addListener("focus", () => {
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "Home" }],
+      });
+    });
+    return unsubscribe;
+  }, [navigation]);
   return (
     <>
       <Stack.Navigator
