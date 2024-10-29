@@ -10,6 +10,7 @@ import React, { useEffect, useState } from "react";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useNavigation } from "@react-navigation/native";
 import { getAllCategory } from "../api/categoryApi";
+import { getProductsByCategoryId } from "../api/productApi";
 
 const BreedScreen = () => {
   const [categories, setCategories] = useState([]);
@@ -27,6 +28,7 @@ const BreedScreen = () => {
         setLoading(false);
       }
     };
+    
 
     fetchCategories();
   }, []);
