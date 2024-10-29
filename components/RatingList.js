@@ -21,8 +21,10 @@ const RatingItem = ({ item }) => (
         style={styles.avatar}
       />
       <View style={styles.userDetails}>
-        <Text style={styles.userName}>{item.userId}</Text>
-        <Text style={styles.date}>{dayjs(item.date).format("DD/MM/YYYY")}</Text>
+        <Text style={styles.userName}>{item?.userId?.username}</Text>
+        <Text style={styles.date}>
+          {dayjs(item?.date).format("DD/MM/YYYY")}
+        </Text>
       </View>
     </View>
     <View style={styles.starRow}>

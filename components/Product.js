@@ -34,7 +34,7 @@ const Product = ({ item }) => {
               : "(Không xác định)"}
           </Text>
           <View style={styles.flexBetween}>
-            <Text style={styles.dateAdded}> {formattedDate}</Text>
+            {/* <Text style={styles.dateAdded}> {formattedDate}</Text> */}
             <Text style={styles.productPrice}>
               {new Intl.NumberFormat("vi-VN", {
                 style: "currency",

@@ -67,3 +67,28 @@ export const getProductById = async (productId) => {
     throw error;
   }
 };
+export const createConsignedCare = async (consignmentData, token) => {
+  try {
+    const token = await AsyncStorage.getItem("token"); // Retrieve token if required
+    const response = await fetch(`${API_URL}/products/consigned-care`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`, // Add token if required
+      },
+      body: JSON.stringify(consignmentData),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(
+        errorData.message || "Không thể tạo sản phẩm consigned care"
+      );
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    throw error;
+  }
+};

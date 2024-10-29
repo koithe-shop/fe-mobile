@@ -1,7 +1,7 @@
 import React from "react";
 import { Modal, View, Text, TouchableOpacity, StyleSheet } from "react-native";
 
-const SelectionModal = ({ visible, options, onSelect, onClose }) => {
+const SelectionModalCategories = ({ visible, options, onSelect, onClose }) => {
   return (
     <Modal
       transparent={true}
@@ -20,10 +20,11 @@ const SelectionModal = ({ visible, options, onSelect, onClose }) => {
                 onClose();
               }}
             >
-              <Text style={styles.optionText}>{option.genotypeName}</Text>
+              <Text style={styles.optionText}>{option.categoryName}</Text>
               {/* Display the label */}
             </TouchableOpacity>
           ))}
+
           <TouchableOpacity style={styles.closeButton} onPress={onClose}>
             <Text style={styles.closeButtonText}>Close</Text>
           </TouchableOpacity>
@@ -66,4 +67,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SelectionModal;
+export default SelectionModalCategories;

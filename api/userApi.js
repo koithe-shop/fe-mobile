@@ -50,10 +50,8 @@ export const register = async (userData) => {
   }
 };
 
-export const getUserById = async (userId, token) => {
-  console.log(userId);
-  console.log(token);
-
+export const getUserById = async (userId) => {
+  const token = await AsyncStorage.getItem("userToken"); // Retrieve token if required
   try {
     const response = await fetch(`${API_URL}/users/${userId}`, {
       method: "GET",

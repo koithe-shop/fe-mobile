@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   StyleSheet,
   ScrollView,
@@ -11,12 +11,45 @@ import {
 } from "react-native";
 import ProductForm from "../components/ProductForm";
 import CareConsignmentForm from "../components/CareConsignmentForm";
+import { getAllGenotypes } from "../api/genotypeApi";
+import { getAllCategory } from "../api/categoryApi";
 
 export default function ConsignmentCareScreen({ navigation }) {
   const [step, setStep] = useState(1); // State to manage the current step
   const [productData, setProductData] = useState(null);
   const [productImages, setProductImages] = useState([]); // State to hold images
   const [consignmentData, setConsignmentData] = useState(null); // New state for consignment data
+  const [categories, setCategories] = useState([]);
+  const [genotypes, setGenotypes] = useState([]);
+  const [loading, setLoading] = useState(true); // State for loading
+  const [error, setError] = useState(null); // State for error handling
+  console.log(productData);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const data = await getAllCategory();
+        setCategories(data);
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    const fetchGenotypes = async () => {
+      try {
+        const data = await getAllGenotypes();
+        setGenotypes(data);
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
+    fetchGenotypes();
+  }, []);
 
   const handleCreateProduct = (data) => {
     setProductData(data); // Save product data
@@ -66,6 +99,8 @@ export default function ConsignmentCareScreen({ navigation }) {
           {step === 1 && (
             <View style={styles.stepContainer}>
               <ProductForm
+                genotypes={genotypes}
+                categories={categories}
                 onCreateProduct={handleCreateProduct}
                 onImageUpdate={handleImageUpdate}
                 existingImages={productImages}
