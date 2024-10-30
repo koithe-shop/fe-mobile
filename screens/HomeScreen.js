@@ -41,7 +41,7 @@ const HomeScreen = ({ navigation }) => {
         setLoading(false);
       }
      };
-     
+     checkTokenExpiration();
      fetchCategories();
      fetchProducts();
   }, []);
