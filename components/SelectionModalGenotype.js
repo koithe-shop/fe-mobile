@@ -1,7 +1,7 @@
 import React from "react";
 import { Modal, View, Text, TouchableOpacity, StyleSheet } from "react-native";
 
-const SelectionModal = ({ visible, options, onSelect, onClose }) => {
+const SelectionModalGenotype = ({ visible, options, onSelect, onClose }) => {
   return (
     <Modal
       transparent={true}
@@ -66,4 +66,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SelectionModal;
+export default SelectionModalGenotype;

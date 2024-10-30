@@ -19,15 +19,15 @@ const CareConsignmentForm = ({
   const [price, setPrice] = useState(initialData?.price || "");
   const [isModalVisible, setModalVisible] = useState(false);
   const [startDate, setStartDate] = useState(
-    new Date(initialData?.startDate || Date.now())
+    new Date(initialData?.startDate || new Date())
   );
   const [endDate, setEndDate] = useState(
-    new Date(initialData?.endDate || Date.now())
+    new Date(initialData?.endDate || new Date())
   );
 
   const options = [
-    { label: "Normal", price: 50000 },
-    { label: "Special", price: 100000 },
+    { label: "Normal", price: 100000 },
+    { label: "Special", price: 150000 },
   ];
 
   const handleStartDateChange = (event, selectedDate) => {
@@ -41,10 +41,41 @@ const CareConsignmentForm = ({
   };
 
   const handleSubmit = () => {
+    const today = new Date(); // Get today's date
+    today.setHours(0, 0, 0, 0); // Set time to midnight for accurate comparison
+
+    // Create a date object for comparison
+    const startDateWithoutTime = new Date(startDate);
+    startDateWithoutTime.setHours(0, 0, 0, 0); // Reset time to midnight
+
+    const endDateWithoutTime = new Date(endDate);
+    endDateWithoutTime.setHours(0, 0, 0, 0); // Reset time to midnight
+
+    if (!careType) {
+      alert("Vui lòng chọn loại chăm sóc.");
+      return;
+    }
+
+    // Check if start date is before or equal to today
+    if (startDateWithoutTime <= today) {
+      alert("Ngày bắt đầu phải lớn hơn ngày hôm nay."); // Alert if start date is today or in the past
+      return;
+    }
+
+    if (!endDate) {
+      alert("Vui lòng chọn ngày kết thúc.");
+      return;
+    }
+
+    // Check if end date is before or equal to start date
+    if (endDateWithoutTime <= startDateWithoutTime) {
+      alert("Ngày kết thúc phải sau ngày bắt đầu.");
+      return;
+    }
+
     const consignmentData = {
-      userId: "exampleUserId", // Replace with actual user ID from context or props
-      productId: "exampleProductId", // Replace with actual product ID
-      careType,
+      careType: careType,
+      price: price,
       startDate: startDate.toISOString().split("T")[0], // Format to YYYY-MM-DD
       endDate: endDate.toISOString().split("T")[0], // Format to YYYY-MM-DD
     };
@@ -66,6 +97,12 @@ const CareConsignmentForm = ({
       setStartDate(new Date(initialData.startDate));
       setEndDate(new Date(initialData.endDate));
     }
+    const fetchUserId = async () => {
+      const storedUserId = await AsyncStorage.getItem("userId");
+      if (storedUserId) {
+        setOwnerId(storedUserId); // Set ownerId with userId from AsyncStorage
+      }
+    };
   }, [initialData]);
 
   return (

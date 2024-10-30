@@ -20,10 +20,9 @@ const ProfileScreen = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const token = await AsyncStorage.getItem("userToken"); // Get the token from AsyncStorage
         const userId = await AsyncStorage.getItem("userId"); // Get the user ID from AsyncStorage
-        if (token && userId) {
-          const userData = await getUserById(userId, token); // Fetch user data by ID
+        if (userId) {
+          const userData = await getUserById(userId); // Fetch user data by ID
           setUserInfo(userData); // Set user data to state
         } else {
           setError("Không tìm thấy thông tin người dùng");

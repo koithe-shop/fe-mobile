@@ -1,121 +1,99 @@
+import React from "react";
 import {
   StyleSheet,
   Text,
   View,
   TouchableOpacity,
   ScrollView,
-  SafeAreaView,
 } from "react-native";
-import React from "react";
+import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { useNavigation } from "@react-navigation/native";
-import Icon from "react-native-vector-icons/MaterialIcons"; // Import icon
+import ConsignmentSaleHistory from "../components/ConsignmentSaleHistory";
+import ConsignmentCareHistory from "../components/ConsignmentCareHistory";
 
-export default function ConsignmentScreen() {
+const Tab = createMaterialTopTabNavigator();
+
+function ConsignmentSaleTab() {
   const navigation = useNavigation();
 
   const navigateToConsignmentSaleScreen = () => {
     navigation.navigate("ConsignmentSaleScreen");
   };
+
+  return (
+    <View style={styles.tabContainer}>
+      <TouchableOpacity
+        style={styles.createButton}
+        onPress={navigateToConsignmentSaleScreen}
+      >
+        <Text style={styles.buttonText}>Tạo Ký Gửi Bán</Text>
+      </TouchableOpacity>
+      <ConsignmentSaleHistory />
+    </View>
+  );
+}
+
+function ConsignmentCareTab() {
+  const navigation = useNavigation();
+
   const navigateToConsignmentCareScreen = () => {
     navigation.navigate("ConsignmentCareScreen");
   };
 
-  const navigateToViewConsignments = () => {
-    navigation.navigate("ViewConsignments");
-  };
-
   return (
-    <ScrollView style={styles.container}>
-      {/* Bố cục hàng ngang cho các nút */}
-      <View style={styles.buttonRow}>
-        {/* Nút Tạo Ký Gửi */}
-        <TouchableOpacity
-          style={styles.button}
-          onPress={navigateToConsignmentSaleScreen}
-        >
-          {/* <Icon name="add-circle-outline" size={30} color="#FFF" /> */}
-          <Text style={styles.buttonText}>Ký gửi bán</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={navigateToConsignmentCareScreen}
-        >
-          {/* <Icon name="add-circle-outline" size={30} color="#FFF" /> */}
-          <Text style={styles.buttonText}>Ký gửi chăm sóc</Text>
-        </TouchableOpacity>
+    <View style={styles.tabContainer}>
+      <TouchableOpacity
+        style={styles.createButton}
+        onPress={navigateToConsignmentCareScreen}
+      >
+        <Text style={styles.buttonText}>Tạo Ký Gửi Chăm Sóc</Text>
+      </TouchableOpacity>
+      <ConsignmentCareHistory  />
+    </View>
+  );
+}
 
-        {/* Nút Xem Danh Sách Ký Gửi */}
-        {/* <TouchableOpacity
-          style={styles.button}
-          onPress={navigateToViewConsignments}
-        >
-          <Text style={styles.buttonText}>Xem Danh Sách Ký gửi</Text>
-        </TouchableOpacity> */}
-      </View>
+// ... (rest of the code remains unchanged)
 
-      {/* Danh sách cá ký gửi gần đây */}
-      <ScrollView style={styles.scrollView}>
-        <Text style={styles.sectionHeader}>Cá Ký Gửi Gần Đây</Text>
-        <View style={styles.fishItem}>
-          <Text style={styles.fishName}>Cá Koi Nhật</Text>
-          <Text style={styles.fishDetail}>Kích thước: 25cm | Tuổi: 1 năm</Text>
-        </View>
-      </ScrollView>
-    </ScrollView>
+export default function ConsignmentScreen() {
+  return (
+    <Tab.Navigator
+      screenOptions={{
+        tabBarLabelStyle: { fontSize: 14, fontWeight: "bold" },
+        tabBarStyle: { backgroundColor: "#333" },
+        tabBarActiveTintColor: "#FFF",
+        tabBarIndicatorStyle: { backgroundColor: "#FFF" },
+      }}
+    >
+      <Tab.Screen
+        name="ConsignmentSaleTab"
+        component={ConsignmentSaleTab}
+        options={{ tabBarLabel: "Ký gửi bán" }}
+      />
+      <Tab.Screen
+        name="ConsignmentCareTab"
+        component={ConsignmentCareTab}
+        options={{ tabBarLabel: "Ký gửi chăm sóc" }}
+      />
+    </Tab.Navigator>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  tabContainer: {
     flex: 1,
-    padding: 10,
-    backgroundColor: "#F9F9F9",
+    padding: 16,
   },
-  buttonRow: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    marginBottom: 16,
-  },
-  button: {
+  createButton: {
     backgroundColor: "#333",
-    paddingVertical: 10,
-    paddingHorizontal: 20,
+    padding: 10,
     borderRadius: 8,
-    justifyContent: "center",
-    flexDirection: "row",
-    width: "30%", // Căn mỗi nút chiếm khoảng 45% chiều rộng
-    gap: 10,
     alignItems: "center",
+    marginBottom: 20,
   },
   buttonText: {
     color: "#FFF",
-    fontSize: 12,
+    fontSize: 16,
     fontWeight: "bold",
-    // marginTop: 5, // Khoảng cách giữa icon và text
-    textAlign: "center",
-  },
-  scrollView: {
-    marginTop: 20,
-  },
-  sectionHeader: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#555",
-    marginBottom: 10,
-  },
-  fishItem: {
-    backgroundColor: "#FFF",
-    padding: 15,
-    borderRadius: 8,
-    marginBottom: 10,
-    elevation: 1,
-  },
-  fishName: {
-    fontSize: 18,
-    fontWeight: "600",
-  },
-  fishDetail: {
-    fontSize: 14,
-    color: "#666",
   },
 });

@@ -50,8 +50,8 @@ export const register = async (userData) => {
   }
 };
 
-export const getUserById = async (userId, token) => {
-  console.log(userId);
+export const getUserById = async (userId) => {
+  const token = await AsyncStorage.getItem("userToken"); // Retrieve token if required
   console.log(token);
 
   try {

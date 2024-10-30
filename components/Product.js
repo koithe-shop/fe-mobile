@@ -14,7 +14,7 @@ const Product = ({ item }) => {
 
   const navigation = useNavigation();
   const handlePress = () => {
-    navigation.navigate("ProductDetail", { productId: item._id});
+    navigation.navigate("ProductDetail", { productId: item._id });
   };
   return (
     <TouchableOpacity style={styles.productCard} onPress={handlePress}>
@@ -29,11 +29,18 @@ const Product = ({ item }) => {
             {item.productName}
           </Text>
           <Text numberOfLines={1} ellipsizeMode="tail" style={styles.breed}>
-            ({item?.categoryId?.categoryName})
+            {item?.categoryId?.categoryName
+              ? "(" + item.categoryId.categoryName + ")"
+              : "(Không xác định)"}
           </Text>
           <View style={styles.flexBetween}>
-            <Text style={styles.dateAdded}> {formattedDate}</Text>
-            <Text style={styles.productPrice}> ${formattedPrice}</Text>
+            {/* <Text style={styles.dateAdded}> {formattedDate}</Text> */}
+            <Text style={styles.productPrice}>
+              {new Intl.NumberFormat("vi-VN", {
+                style: "currency",
+                currency: "VND",
+              }).format(item.price)}
+            </Text>
           </View>
         </View>
       </View>

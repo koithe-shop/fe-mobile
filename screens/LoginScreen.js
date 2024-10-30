@@ -48,6 +48,8 @@ const LoginScreen = ({ navigation }) => {
         await AsyncStorage.setItem("userToken", data.token);
         await AsyncStorage.setItem("userId", decodedToken.userId);
 
+        await AsyncStorage.setItem("expToken", decodedToken.exp.toString());
+
         // console.log("Login successful:", data);
         navigation.replace("AppDrawer"); // Navigate after successful login
       } else {
