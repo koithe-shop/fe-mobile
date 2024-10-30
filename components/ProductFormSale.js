@@ -6,18 +6,15 @@ import {
   View,
   TouchableOpacity,
 } from "react-native";
-import ImagePickerComponent from "./ImagePickerComponent";
 import SelectionModalCategories from "./SelectionModalCategories";
 import SelectionModalGenotype from "./SelectionModalGenotype";
 import SelectionModalGender from "./SelectionModalGender";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const ProductForm = ({
+const ProductFormSale = ({
   onCreateConsignment,
-  onImageUpdate,
   categories,
   genotypes,
-  existingImages,
   consignmentData, // New prop for existing consignment data
 }) => {
   // Consignment states, initialized with consignmentData or default values
@@ -31,12 +28,14 @@ const ProductForm = ({
   const [yob, setYob] = useState(consignmentData?.yob || "");
   const [character, setCharacter] = useState(consignmentData?.character || "");
   const [foodOnDay, setFoodOnDay] = useState(consignmentData?.foodOnDay || "");
+  const [saleType, setSaleType] = useState(
+    consignmentData?.saleType || "Online"
+  );
+
   const [description, setDescription] = useState(
     consignmentData?.description || ""
   );
-  const [images, setImages] = useState(
-    existingImages || consignmentData?.images || []
-  );
+
   const [price, setPrice] = useState(consignmentData?.price || 1);
   const [categoryId, setCategoryId] = useState(
     consignmentData?.categoryId || ""
@@ -49,17 +48,18 @@ const ProductForm = ({
   const [isCategoryModalVisible, setCategoryModalVisible] = useState(false);
   const [isGenotypeModalVisible, setGenotypeModalVisible] = useState(false);
   const [genderModalVisible, setGenderModalVisible] = useState(false);
+  const [saleTypeModalVisible, setSaleTypeModalVisible] = useState(false);
 
   const genderOptions = [
     { label: "Male", value: true },
     { label: "Female", value: false },
   ];
-
+  const saleTypeOptions = [
+    { label: "Online - 5%", value: "Online" },
+    { label: "Offline - 10%", value: "Offline" },
+  ];
   // Load existing images and userId when component mounts or updates
   useEffect(() => {
-    if (existingImages) {
-      setImages(existingImages);
-    }
     const fetchUserId = async () => {
       const storedUserId = await AsyncStorage.getItem("userId");
       if (storedUserId) {
@@ -67,52 +67,36 @@ const ProductForm = ({
       }
     };
     fetchUserId();
-  }, [existingImages]);
-
-  const handleImagesSelected = (selectedImages) => {
-    setImages(selectedImages);
-    onImageUpdate(selectedImages);
-  };
+  }, []);
 
   const validateInputs = () => {
-    const validations = [
-      { condition: !productName, message: "Tên sản phẩm không được để trống." },
-      { condition: !ownerId, message: "ID người sở hữu không được để trống." },
-      { condition: !madeBy, message: "Nguồn gốc không được để trống." },
-      {
-        condition: !size || isNaN(size) || size <= 0,
-        message: "Kích thước phải là một số dương.",
-      },
-      {
-        condition:
-          !yob || isNaN(yob) || yob < 2000 || yob > new Date().getFullYear(),
-        message: "Năm sinh lớn hơn 2000 và nhỏ hơn hiện tại.",
-      },
-      { condition: !character, message: "Tính cách không được để trống." },
-      {
-        condition: !foodOnDay,
-        message: "Thức ăn mỗi ngày không được để trống.",
-      },
-      { condition: !description, message: "Mô tả không được để trống." },
-      { condition: !price || isNaN(price), message: "Giá phải là một số." },
-      { condition: !categoryId, message: "Xin hãy chọn giống cá." },
-      { condition: !genotypeId, message: "Xin hãy chọn mã genotype." },
-    ];
+    const errors = [];
+    if (!productName) errors.push("Tên sản phẩm không được để trống.");
+    if (!ownerId) errors.push("ID người sở hữu không được để trống.");
+    if (!madeBy) errors.push("Nguồn gốc không được để trống.");
+    if (!size || isNaN(size) || size <= 0)
+      errors.push("Kích thước phải là một số dương.");
+    if (!yob || isNaN(yob) || yob < 2000 || yob > new Date().getFullYear())
+      errors.push("Năm sinh lớn hơn 2000 và nhỏ hơn hiện tại.");
+    if (!character) errors.push("Tính cách không được để trống.");
+    if (!foodOnDay) errors.push("Thức ăn mỗi ngày không được để trống.");
+    if (!description) errors.push("Mô tả không được để trống.");
+    if (!price || isNaN(price)) errors.push("Giá phải là một số.");
+    if (!categoryId) errors.push("Xin hãy chọn giống cá.");
+    if (!genotypeId) errors.push("Xin hãy chọn mã genotype.");
+    if (!saleType) errors.push("Xin hãy loại ký gửi.");
 
-    for (const validation of validations) {
-      if (validation.condition) {
-        alert(validation.message);
-        return false;
-      }
-    }
-    return true;
+    return errors;
   };
 
   // Submit consignment data
   const handleSubmit = () => {
-    if (!validateInputs()) return;
+    const validationMessages = validateInputs();
+    if (validationMessages.length > 0) {
+      alert(validationMessages.join("\n"));
+      return;
+    }
 
-    // Prepare consignment data
     const consignmentDataToSubmit = {
       productName,
       ownerId,
@@ -124,9 +108,9 @@ const ProductForm = ({
       foodOnDay,
       description,
       price,
-      images, // Use selected images
       categoryId,
       genotypeId,
+      saleType,
     };
 
     onCreateConsignment(consignmentDataToSubmit);
@@ -216,19 +200,31 @@ const ProductForm = ({
             ?.genotypeName || "Chọn mã genotype"}
         </Text>
       </TouchableOpacity>
-
+      <Text style={styles.label}>Nhập giá bán</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Nhập giá bán"
+        keyboardType="numeric"
+        value={price}
+        onChangeText={setPrice}
+      />
+      <Text style={styles.label}>Loại ký bán</Text>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => setSaleTypeModalVisible(true)}
+      >
+        <Text style={styles.buttonText}>{saleType} </Text>
+      </TouchableOpacity>
       {/* Image Picker */}
       {/* <Text style={styles.label}>Hình Ảnh</Text>
       <ImagePickerComponent
         onImagesSelected={handleImagesSelected}
         existingImages={images} // Pass images to ImagePickerComponent
       /> */}
-
       <TouchableOpacity style={styles.buttonContinue} onPress={handleSubmit}>
         <Text style={styles.buttonTextContinue}> Tiếp tục</Text>
       </TouchableOpacity>
 
-      {/* Modals */}
       <SelectionModalCategories
         visible={isCategoryModalVisible}
         options={categories}
@@ -246,6 +242,12 @@ const ProductForm = ({
         options={genderOptions}
         onSelect={(selected) => setGender(selected.value)}
         onClose={() => setGenderModalVisible(false)}
+      />
+      <SelectionModalGender
+        visible={saleTypeModalVisible}
+        options={saleTypeOptions}
+        onSelect={(selected) => setSaleType(selected.value)}
+        onClose={() => setSaleTypeModalVisible(false)}
       />
     </View>
   );
@@ -294,4 +296,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ProductForm;
+export default ProductFormSale;

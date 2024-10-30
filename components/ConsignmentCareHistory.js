@@ -124,6 +124,9 @@ const ConsignmentCareHistory = () => {
         return {};
     }
   };
+  const handleProductDetailNavigation = (productId) => {
+    navigation.navigate("ProductDetail", { productId });
+  };
 
   return (
     <ScrollView
@@ -133,7 +136,14 @@ const ConsignmentCareHistory = () => {
       {careHistory.map((item) => (
         <View key={item._id} style={styles.card}>
           <View style={styles.flexBetween}>
-            <Text style={styles.productName}>{item.productId.productName}</Text>
+            <TouchableOpacity
+              onPress={() => handleProductDetailNavigation(item.productId._id)}
+            >
+              <Text style={styles.productName}>
+                {item.productId.productName}
+              </Text>
+            </TouchableOpacity>
+            {/* <Text style={styles.productName}>{item.productId.productName}</Text> */}
             <TouchableOpacity onPress={() => handlePaymentNavigation(item)}>
               <Text
                 style={[
@@ -155,6 +165,9 @@ const ConsignmentCareHistory = () => {
           <Text style={styles.dates}>
             From: {new Date(item.startDate).toLocaleDateString()} - To:{" "}
             {new Date(item.endDate).toLocaleDateString()}
+          </Text>
+          <Text style={styles.dates}>
+            Created: {new Date(item.createdAt).toLocaleDateString()}
           </Text>
           <Text style={styles.totalPrice}>
             Total Price: {item.totalPrice.toLocaleString()} VND

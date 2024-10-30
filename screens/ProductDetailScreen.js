@@ -755,7 +755,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   imageContainer: {
-    position: 'relative',
+    position: "relative",
     height: 300,
   },
   productImage: {
@@ -763,22 +763,22 @@ const styles = StyleSheet.create({
     height: 300,
   },
   pagination: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 16,
-    flexDirection: 'row',
-    width: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
+    flexDirection: "row",
+    width: "100%",
+    justifyContent: "center",
+    alignItems: "center",
   },
   paginationDot: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+    backgroundColor: "rgba(255, 255, 255, 0.5)",
     margin: 4,
   },
   paginationDotActive: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     width: 12,
     height: 12,
     borderRadius: 6,
