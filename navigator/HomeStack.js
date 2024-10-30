@@ -12,6 +12,7 @@ import BreedDetailScreen from "../screens/BreedDetailScreen";
 import CartScreen from "../screens/CartScreen";
 import CheckoutScreen from "../screens/CheckoutScreen";
 import FeedbackScreen from "../screens/FeedbackScreen";
+import PaymentPage from "../screens/PaymentCarePage";
 
 const Stack = createNativeStackNavigator();
 

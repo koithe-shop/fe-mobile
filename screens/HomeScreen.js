@@ -12,14 +12,26 @@ import KoiBreeds from "../components/KoiBreeds";
 import ProductSection from "../components/ProductSection";
 import { getAllCategory } from "../api/categoryApi";
 import { getAllProduct } from "../api/productApi";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useAsyncStorage } from "../context/AsyncStorageContext";
 
 const HomeScreen = ({ navigation }) => {
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { logout } = useAsyncStorage(); // Get the logout function from context
 
   useEffect(() => {
+    const checkTokenExpiration = async () => {
+      const expToken = await AsyncStorage.getItem("expToken");
+      const currentTime = Math.floor(Date.now() / 1000);
+
+      if (expToken && parseInt(expToken, 10) < currentTime) {
+        logout(); // Log out if the token is expired
+        alert("Phiên bản đăng nhập hết hạn");
+      }
+    };
     const fetchCategories = async () => {
       try {
         const data = await getAllCategory();
@@ -41,6 +53,7 @@ const HomeScreen = ({ navigation }) => {
       }
     };
 
+    checkTokenExpiration(); // Check token expiration when the component mounts
     fetchCategories();
     fetchProducts();
   }, []);

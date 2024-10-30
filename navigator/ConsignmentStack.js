@@ -8,6 +8,8 @@ import CreateConsignmentScreen from "../screens/ConsignmentCareScreen";
 import ConsignmentCareScreen from "../screens/ConsignmentCareScreen";
 import ConsignmentSaleScreen from "../screens/ConsignmentSaleScreen";
 import ConsignmentCareDetailScreen from "../screens/ConsignmentCareDetailScreen";
+import PaymentPage from "../screens/PaymentCarePage";
+import ProductDetailScreen from "../screens/ProductDetailScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -36,6 +38,14 @@ const ConsignmentStack = ({ navigation }) => {
         }}
       />
       <Stack.Screen
+        name="ProductDetail"
+        component={ProductDetailScreen  }
+        options={{
+          // headerShown: false,
+          title: "Detail",
+        }}
+      />
+      <Stack.Screen
         name="ConsignmentCareScreen"
         component={ConsignmentCareScreen}
         options={{
@@ -43,6 +53,8 @@ const ConsignmentStack = ({ navigation }) => {
           headerShown: false,
         }}
       />
+      <Stack.Screen name="PaymentPage" component={PaymentPage} />
+
       <Stack.Screen
         name="ConsignmentCareDetail"
         component={ConsignmentCareDetailScreen}
@@ -62,6 +74,7 @@ const ConsignmentStack = ({ navigation }) => {
         name="ConsignmentSaleScreen"
         component={ConsignmentSaleScreen}
         options={{
+          headerShown: false,
           title: "Gửi bán",
         }}
       />

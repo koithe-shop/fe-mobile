@@ -6,17 +6,16 @@ import AppStack from "./navigator/AppStack";
 import { StripeProvider } from "@stripe/stripe-react-native";
 import { STRIPE_PUBLIC_KEY } from "@env";
 
-
 export default function App() {
   return (
     <StripeProvider publishableKey={STRIPE_PUBLIC_KEY}>
       <>
         <StatusBar animated={true} />
-        <AsyncStorageProvider>
-          <NavigationContainer>
+        <NavigationContainer>
+          <AsyncStorageProvider>
             <AppStack />
-          </NavigationContainer>
-        </AsyncStorageProvider>
+          </AsyncStorageProvider>
+        </NavigationContainer>
       </>
     </StripeProvider>
   );
