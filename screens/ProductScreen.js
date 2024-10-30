@@ -13,7 +13,7 @@ import { getAllProduct } from "../api/productApi";
 import { getAllCategory } from "../api/categoryApi";
 
 const ProductScreen = ({ route, navigation }) => {
-  const { searchTerm } = route.params;
+  const { searchTerm } = route.params || {};
   const [searchText, setSearchText] = useState(searchTerm || "");
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [loading, setLoading] = useState(true);
