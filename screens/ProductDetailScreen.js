@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
   Alert,
   Dimensions,
+  Modal,
 } from "react-native";
 import { MaterialIcons, AntDesign, Feather } from "@expo/vector-icons";
 import { getProductById, getProductsByCategoryId } from "../api/productApi";
@@ -29,6 +30,7 @@ const ProductDetailScreen = ({ navigation, route }) => {
   const { productId } = route.params;
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -62,24 +64,32 @@ const ProductDetailScreen = ({ navigation, route }) => {
               <MaterialIcons name="more-vert" size={24} color="#fff" />
             </TouchableOpacity>
 
-            {showOptions && (
-              <>
-                <Pressable
-                  style={styles.overlay}
-                  onPress={() => setShowOptions(false)}
-                />
-                <View style={styles.optionsMenu}>
-                  <TouchableOpacity
-                    style={styles.optionItem}
-                    onPress={() => {
-                      navigation.navigate("Home");
-                      setShowOptions(false);
-                    }}
-                  >
-                    <Text>Về trang chủ</Text>
-                  </TouchableOpacity>
+            {showModal && (
+              <Modal
+                visible={showModal}
+                onRequestClose={() => setShowModal(false)}
+                transparent
+                animationType="fade"
+              >
+                <View style={styles.modalContainer}>
+                  <View style={styles.modalContent}>
+                    <TouchableOpacity
+                      style={styles.modalOption}
+                      onPress={() => handleModalOption("home")}
+                    >
+                      <Text style={styles.modalOptionText}>Về trang chủ</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.modalOption}
+                      onPress={() => handleModalOption("viewOtherProducts")}
+                    >
+                      <Text style={styles.modalOptionText}>
+                        Xem sản phẩm khác
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
-              </>
+              </Modal>
             )}
           </View>
         </View>
@@ -89,6 +99,21 @@ const ProductDetailScreen = ({ navigation, route }) => {
 
   const handleOptionsPress = () => {
     setShowOptions((prev) => !prev);
+    setShowModal(true);
+  };
+
+  const handleModalOption = (option) => {
+    setShowModal(false);
+    setShowOptions(false);
+
+    switch (option) {
+      case "home":
+        navigation.navigate("Home");
+        break;
+      case "viewOtherProducts":
+        navigation.navigate("Product");
+        break;
+    }
   };
 
   const fetchProductDetails = async (id) => {
@@ -167,6 +192,18 @@ const ProductDetailScreen = ({ navigation, route }) => {
       "Consigned Returned": "#8e44ad",
     };
     return colorMap[status] || "#000000";
+  };
+  const getButtonText = (status) => {
+    const buttonTextMap = {
+      Available: "Mua ngay",
+      Sold: "Đã bán",
+      Unavailable: "Không khả dụng",
+      "Consigned Sale": "Mua ngay",
+      "Consigned Sold": "Đã bán",
+      "Consigned Care": "Đang được chăm sóc",
+      "Consigned Returned": "Đã trả về",
+    };
+    return buttonTextMap[status] || "Không rõ";
   };
 
   const StatusDisplay = ({ status }) => (
@@ -436,7 +473,8 @@ const ProductDetailScreen = ({ navigation, route }) => {
       </ScrollView>
 
       <View style={styles.bottomButtons}>
-        {product.status !== "Sold" && (
+        {(product.status === "Available" ||
+          product.status === "Consigned Sale") && (
           <TouchableOpacity
             style={[styles.button, styles.cartButton]}
             onPress={handleAddToCart}
@@ -448,14 +486,25 @@ const ProductDetailScreen = ({ navigation, route }) => {
           style={[
             styles.button,
             styles.buyButton,
-            product.status === "Sold" && { opacity: 0.5 },
-            product.status === "Sold" && { marginLeft: 0 },
+            (product.status === "Sold" ||
+              product.status === "Consigned Sold" ||
+              product.status === "Consigned Care" ||
+              product.status === "Consigned Returned") && { opacity: 0.5 },
+            (product.status === "Sold" ||
+              product.status === "Consigned Sold" ||
+              product.status === "Consigned Care" ||
+              product.status === "Consigned Returned") && { marginLeft: 0 },
           ]}
           onPress={handleCheckout}
-          disabled={product.status === "Sold"}
+          disabled={
+            product.status === "Sold" ||
+            product.status === "Consigned Sold" ||
+            product.status === "Consigned Care" ||
+            product.status === "Consigned Returned"
+          }
         >
           <Text style={styles.buyButtonText}>
-            {product.status === "Sold" ? "Đã bán" : "Mua ngay"}
+            {getButtonText(product.status)}
           </Text>
         </TouchableOpacity>
       </View>
@@ -509,34 +558,32 @@ const styles = StyleSheet.create({
     position: "relative",
     zIndex: 999,
   },
-  optionsMenu: {
-    position: "absolute",
-    right: 0,
-    top: "100%",
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContent: {
     backgroundColor: "#fff",
+    padding: 20,
     borderRadius: 8,
-    elevation: 5,
-    zIndex: 9999,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    minWidth: 150,
-    borderWidth: 1,
-    borderColor: "#eee",
+    width: "80%",
   },
-  overlay: {
-    position: "absolute",
-    top: -60,
-    left: -20,
-    right: -20,
-    bottom: -1000,
-    backgroundColor: "transparent",
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 12,
   },
-  optionItem: {
-    padding: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "#eee",
+  modalOption: {
+    paddingVertical: 12,
+    borderRadius: 8,
+    marginVertical: 4,
+  },
+  modalOptionText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    textAlign: "center",
   },
   scrollContent: {
     flex: 1,
@@ -755,7 +802,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   imageContainer: {
-    position: 'relative',
+    position: "relative",
     height: 300,
   },
   productImage: {
@@ -763,22 +810,22 @@ const styles = StyleSheet.create({
     height: 300,
   },
   pagination: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 16,
-    flexDirection: 'row',
-    width: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
+    flexDirection: "row",
+    width: "100%",
+    justifyContent: "center",
+    alignItems: "center",
   },
   paginationDot: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+    backgroundColor: "rgba(255, 255, 255, 0.5)",
     margin: 4,
   },
   paginationDotActive: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     width: 12,
     height: 12,
     borderRadius: 6,
