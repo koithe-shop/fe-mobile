@@ -45,7 +45,8 @@ const HomeScreen = ({ navigation }) => {
     const fetchProducts = async () => {
       try {
         const data = await getAllProduct();
-        setProducts(data);
+        const availableProducts = data.filter(product => product.status === "Available" || product.status === "Consigned Sale");
+        setProducts(availableProducts);
       } catch (error) {
         setError(error.message);
       } finally {
