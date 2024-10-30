@@ -7,20 +7,23 @@ import {
   StyleSheet,
   TouchableOpacity,
   Alert,
+  RefreshControl,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 import { changePaymentCareStatus } from "../api/consignmentCareApi";
 import { getConsignmentSaleByUserId } from "../api/consignmentSaleApi";
 
-const ConsignmentCareHistory = () => {
+const ConsignmentSaleHistory = () => {
   const [saleHistory, setSaleHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigation = useNavigation();
+  const [refreshing, setRefreshing] = useState(false);
+
   console.log(saleHistory);
 
-  const fetchConsignmentCareHistory = async () => {
+  const fetchConsignmentSaleHistory = async () => {
     setLoading(true);
     try {
       const userId = await AsyncStorage.getItem("userId");
@@ -30,19 +33,23 @@ const ConsignmentCareHistory = () => {
           (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
         );
         setSaleHistory(sortedData);
-      } else {
-        setError("User ID not found.");
       }
     } catch (err) {
-      setError(err.message);
+      console.error(err);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
   useEffect(() => {
-    fetchConsignmentCareHistory();
+    fetchConsignmentSaleHistory();
   }, []);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchConsignmentSaleHistory();
+  };
 
   const handlePaymentNavigation = (item) => {
     if (item.paymentStatus === "Pending") {
@@ -121,7 +128,13 @@ const ConsignmentCareHistory = () => {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView
+      contentContainerStyle={styles.container}
+      showsVerticalScrollIndicator={false}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
+    >
       {saleHistory.map((item) => (
         <View key={item._id} style={styles.card}>
           <View style={styles.flexBetween}>
@@ -150,8 +163,6 @@ const ConsignmentCareHistory = () => {
             }).format(item.priceAgreed)}
           </Text>
 
-      
-
           {/* Success message for Sold items */}
           {item.status === "Sold" && item.paymentStatus === "Success" ? (
             <Text style={styles.successMessage}>
@@ -159,11 +170,11 @@ const ConsignmentCareHistory = () => {
             </Text>
           ) : item.status === "Sold" ? (
             <TouchableOpacity
-            style={styles.withdrawButton}
-            onPress={() => handleWithdrawNavigation(item)}
-          >
-            <Text style={styles.buttonText}>Withdraw</Text>
-          </TouchableOpacity>
+              style={styles.withdrawButton}
+              onPress={() => handleWithdrawNavigation(item)}
+            >
+              <Text style={styles.buttonText}>Withdraw</Text>
+            </TouchableOpacity>
           ) : null}
         </View>
       ))}
@@ -213,4 +224,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ConsignmentCareHistory;
+export default ConsignmentSaleHistory;
