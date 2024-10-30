@@ -61,6 +61,7 @@ export default function BreedDetail({ route, navigation }) {
   const [showModal, setShowModal] = useState(false); // State to manage modal visibility
   const { categoryId } = route.params; // Lấy id từ params
   const [category, setCategory] = useState(null);
+  console.log(category);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -151,10 +152,10 @@ export default function BreedDetail({ route, navigation }) {
         <Image
           style={styles.headerImage}
           source={{
-            uri: "https://file.hstatic.net/200000573099/file/thiet_ke_chua_co_ten__73__375905fbe0534601b5a50f83f87af0e6_grande.png",
+            uri: category?.image,
           }}
         />
-        <Text style={styles.breedName}>Kohaku</Text>
+        <Text style={styles.breedName}>{category?.categoryName}</Text>
       </View>
 
       <TabView

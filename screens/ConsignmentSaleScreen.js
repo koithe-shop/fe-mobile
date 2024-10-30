@@ -144,6 +144,7 @@ export default function ConsignmentSaleScreen({ navigation }) {
               <ProductFormSale
                 genotypes={genotypes}
                 categories={categories}
+                consignmentData={productData}
                 onCreateConsignment={handleCreateProduct}
                 productData={productData}
                 onUpdateProduct={handleUpdateProduct}
