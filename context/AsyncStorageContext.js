@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useNavigation } from "@react-navigation/native";
 
 const AsyncStorageContext = createContext();
 
@@ -8,6 +9,8 @@ export const useAsyncStorage = () => {
 };
 
 export const AsyncStorageProvider = ({ children }) => {
+  const navigation = useNavigation();
+
   const [data, setData] = useState(null);
 
   const loadData = async () => {
@@ -50,8 +53,19 @@ export const AsyncStorageProvider = ({ children }) => {
     loadData();
   }, []);
 
+  const logout = async () => {
+    try {
+      await AsyncStorage.removeItem("token");
+      await AsyncStorage.removeItem("expToken");
+      navigation.navigate("Login");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
   return (
-    <AsyncStorageContext.Provider value={{ data, saveData, removeItems }}>
+    <AsyncStorageContext.Provider
+      value={{ data, saveData, removeItems, logout }}
+    >
       {children}
     </AsyncStorageContext.Provider>
   );

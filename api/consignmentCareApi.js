@@ -22,6 +22,34 @@ export const getAllConsignmentCare = async () => {
     throw error;
   }
 };
+export const getConsignmentCareByUserId = async (userId) => {
+  const token = await AsyncStorage.getItem("userToken");
+
+  try {
+    const response = await fetch(
+      `${API_URL}/consignment_care/userId/${userId}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // Add token if required
+        },
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(
+        errorData.message || "Không thể lấy thông tin ký gửi theo user ID"
+      );
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    throw error;
+  }
+};
 
 export const createConsignmentCare = async (consignmentData) => {
   try {
@@ -51,6 +79,45 @@ export const createConsignmentCare = async (consignmentData) => {
     return data;
   } catch (error) {
     console.error("Error in createConsignmentCare:", error.message);
+    throw error;
+  }
+};
+export const changePaymentCareStatus = async (
+  consignmentCareId,
+  paymentStatus
+) => {
+  const token = await AsyncStorage.getItem("userToken"); // Retrieve token if needed
+  try {
+    const response = await fetch(
+      `${API_URL}/consignment_care/change_payment_status/${consignmentCareId}`,
+      {
+        method: "PUT", // Use the appropriate method (PATCH, PUT, etc.)
+        headers: {
+          "Content-Type": "application/json",
+          ...(token && { Authorization: `Bearer ${token}` }), // Add token if available
+        },
+        body: JSON.stringify({ paymentStatus: paymentStatus }),
+      }
+    );
+
+    // Log the raw response textd
+    const responseText = await response.text();
+    console.log("Raw response text:", responseText); // Log the raw response
+
+    if (!response.ok) {
+      // Attempt to parse error as JSON; if not JSON, throw as text.
+      try {
+        const errorData = JSON.parse(responseText);
+        throw new Error(errorData.message || "Error changing payment status");
+      } catch (jsonError) {
+        throw new Error("Error changing payment status: " + responseText);
+      }
+    }
+
+    const data = JSON.parse(responseText); // Parse JSON after checking if response is okay
+    return data;
+  } catch (error) {
+    console.error("Error in changePaymentStatus:", error.message);
     throw error;
   }
 };
