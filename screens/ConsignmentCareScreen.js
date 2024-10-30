@@ -9,6 +9,7 @@ import {
   View,
   TouchableOpacity,
   Image,
+  Alert,
 } from "react-native";
 import ProductForm from "../components/ProductForm";
 import CareConsignmentForm from "../components/CareConsignmentForm";
@@ -127,7 +128,7 @@ export default function ConsignmentCareScreen({ navigation }) {
       console.log("Consignment Response:", consignmentResponse); // Log the consignment response
 
       // Navigate to the Consignment Care History screen with refresh parameter
-      navigation.navigate("ConsignmentCareHistory", { refresh: true });
+      navigation.replace("Consignment");
     } catch (error) {
       console.error("Error during checkout:", error.message); // Log error message
       Alert.alert(

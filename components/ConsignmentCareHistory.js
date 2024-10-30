@@ -24,7 +24,6 @@ const ConsignmentCareHistory = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigation = useNavigation();
-  const route = useRoute(); // Get route params
 
   const fetchConsignmentCareHistory = async () => {
     setLoading(true);
@@ -32,7 +31,11 @@ const ConsignmentCareHistory = () => {
       const userId = await AsyncStorage.getItem("userId");
       if (userId) {
         const data = await getConsignmentCareByUserId(userId);
-        setCareHistory(data);
+        // Sort the data by createdAt in descending order
+        const sortedData = data.sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        );
+        setCareHistory(sortedData);
       } else {
         setError("User ID not found.");
       }
@@ -46,14 +49,6 @@ const ConsignmentCareHistory = () => {
   useEffect(() => {
     fetchConsignmentCareHistory();
   }, []);
-
-  useFocusEffect(
-    React.useCallback(() => {
-      if (route.params?.refresh) {
-        fetchConsignmentCareHistory(); // Fetch data if refresh parameter is present
-      }
-    }, [route.params])
-  );
 
   if (loading) {
     return (

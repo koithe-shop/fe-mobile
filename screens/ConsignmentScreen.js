@@ -48,7 +48,7 @@ function ConsignmentCareTab() {
       >
         <Text style={styles.buttonText}>Tạo Ký Gửi Chăm Sóc</Text>
       </TouchableOpacity>
-      <ConsignmentCareHistory />
+      <ConsignmentCareHistory  />
     </View>
   );
 }
