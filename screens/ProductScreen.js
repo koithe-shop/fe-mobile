@@ -27,11 +27,14 @@ const ProductScreen = ({ route, navigation }) => {
     const fetchProducts = async () => {
       try {
         const data = await getAllProduct();
-        setProducts(data);
+        const filteredProducts = data.filter(product => 
+          product.status === "Available" || product.status === "Consigned Sale"
+        );
+        setProducts(filteredProducts);
       } catch (error) {
         setError(error.message);
       } finally {
-        setLoading(false); // Set loading to false after data is fetched
+        setLoading(false);
       }
     };
     const fetchCategories = async () => {
