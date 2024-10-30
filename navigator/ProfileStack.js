@@ -3,6 +3,8 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import ProfileScreen from "../screens/ProfileScreen";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { TouchableOpacity } from "react-native";
+import UpdateUserScreen from "../screens/UpdateUserScreen";
+import CreateBankAccountScreen from "../screens/CreateBankAccountScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -28,6 +30,20 @@ const ProfileStack = ({ navigation }) => {
               <Icon name="menu" size={24} color="#fff" />
             </TouchableOpacity>
           ),
+        }}
+      />
+      <Stack.Screen
+        name="CreateBankAccountScreen"
+        component={CreateBankAccountScreen}
+        options={{
+          title: "Add bank",
+        }}
+      />
+      <Stack.Screen
+        name="UpdateUserScreen"
+        component={UpdateUserScreen}
+        options={{
+          title: "Update User",
         }}
       />
     </Stack.Navigator>

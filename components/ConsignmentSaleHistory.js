@@ -86,7 +86,7 @@ const ConsignmentCareHistory = () => {
     switch (status) {
       case "Pending":
         return styles.pendingStatus;
-      case "Success":
+      case "Sold":
         return styles.successStatus;
       case "Cancelled":
         return styles.cancelledStatus;
@@ -111,9 +111,15 @@ const ConsignmentCareHistory = () => {
       </View>
     );
   }
+
   const handleProductDetailNavigation = (productId) => {
     navigation.navigate("ProductDetail", { productId });
   };
+
+  const handleWithdrawNavigation = (item) => {
+    navigation.navigate("Withdraw", { consignmentId: item._id }); // Pass the consignment ID to the Withdraw page
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       {saleHistory.map((item) => (
@@ -126,16 +132,14 @@ const ConsignmentCareHistory = () => {
                 {item.productId.productName}
               </Text>
             </TouchableOpacity>
-            {/* <Text style={styles.productName}>{item.productId.productName}</Text> */}
-            <Text style={getPaymentStatusStyle(item.paymentStatus)}>
-              {item.paymentStatus}
+            <Text style={getPaymentStatusStyle(item.status)}>
+              {item.status}
             </Text>
           </View>
           <Text style={styles.careType}>
-            Trạng thái: {item.productId.status}
+            Trạng thái payment: {item.paymentStatus}
           </Text>
-
-          <Text style={styles.careType}>Sale Type: {item.saleType} </Text>
+          <Text style={styles.careType}>Sale Type: {item.saleType}</Text>
           <Text style={styles.dates}>
             Created At: {new Date(item.createdAt).toLocaleDateString()}
           </Text>
@@ -145,22 +149,22 @@ const ConsignmentCareHistory = () => {
               currency: "VND",
             }).format(item.priceAgreed)}
           </Text>
-          {/* {item.paymentStatus === "Pending" && (
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity
-                style={styles.payButton}
-                onPress={() => handlePaymentNavigation(item)}
-              >
-                <Text style={styles.buttonText}>Pay Now</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.cancelButton}
-                onPress={() => handleCancel(item)}
-              >
-                <Text style={styles.buttonText}>Cancel</Text>
-              </TouchableOpacity>
-            </View>
-          )} */}
+
+      
+
+          {/* Success message for Sold items */}
+          {item.status === "Sold" && item.paymentStatus === "Success" ? (
+            <Text style={styles.successMessage}>
+              Đã chuyển tiền thành công!
+            </Text>
+          ) : item.status === "Sold" ? (
+            <TouchableOpacity
+            style={styles.withdrawButton}
+            onPress={() => handleWithdrawNavigation(item)}
+          >
+            <Text style={styles.buttonText}>Withdraw</Text>
+          </TouchableOpacity>
+          ) : null}
         </View>
       ))}
     </ScrollView>
@@ -186,29 +190,14 @@ const styles = StyleSheet.create({
   productName: { fontSize: 18, fontWeight: "bold", marginBottom: 8 },
   careType: { fontSize: 14, marginBottom: 4 },
   dates: { fontSize: 14, marginBottom: 4 },
-  paymentStatus: { fontSize: 14, marginBottom: 4 },
   pendingStatus: { color: "orange", fontWeight: "bold" },
   successStatus: { color: "green", fontWeight: "bold" },
   cancelledStatus: { color: "red", fontWeight: "bold" },
-  buttonContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+  withdrawButton: {
+    backgroundColor: "#007BFF", // Customize button color
+    padding: 10,
+    borderRadius: 5,
     marginTop: 10,
-  },
-  payButton: {
-    backgroundColor: "#28a745",
-    padding: 10,
-    borderRadius: 5,
-    flex: 1,
-    marginRight: 5,
-    alignItems: "center",
-  },
-  cancelButton: {
-    backgroundColor: "#dc3545",
-    padding: 10,
-    borderRadius: 5,
-    flex: 1,
-    marginLeft: 5,
     alignItems: "center",
   },
   buttonText: { color: "#fff", fontWeight: "bold" },
@@ -216,6 +205,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+  },
+  successMessage: {
+    color: "green",
+    fontWeight: "bold",
+    marginTop: 10,
   },
 });
 

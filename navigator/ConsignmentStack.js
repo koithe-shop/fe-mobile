@@ -10,6 +10,7 @@ import ConsignmentSaleScreen from "../screens/ConsignmentSaleScreen";
 import ConsignmentCareDetailScreen from "../screens/ConsignmentCareDetailScreen";
 import PaymentPage from "../screens/PaymentCarePage";
 import ProductDetailScreen from "../screens/ProductDetailScreen";
+import WithdrawScreen from "../screens/WithdrawScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -39,10 +40,18 @@ const ConsignmentStack = ({ navigation }) => {
       />
       <Stack.Screen
         name="ProductDetail"
-        component={ProductDetailScreen  }
+        component={ProductDetailScreen}
         options={{
           // headerShown: false,
           title: "Detail",
+        }}
+      />
+      <Stack.Screen
+        name="Withdraw"
+        component={WithdrawScreen}
+        options={{
+          // headerShown: false,
+          title: "Withdraw",
         }}
       />
       <Stack.Screen
@@ -54,7 +63,6 @@ const ConsignmentStack = ({ navigation }) => {
         }}
       />
       <Stack.Screen name="PaymentPage" component={PaymentPage} />
-
       <Stack.Screen
         name="ConsignmentCareDetail"
         component={ConsignmentCareDetailScreen}

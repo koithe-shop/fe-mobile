@@ -77,3 +77,28 @@ export const getUserById = async (userId) => {
     throw error; // Throw error for external handling
   }
 };
+export const updateUser = async (userId, updatedData) => {
+  const token = await AsyncStorage.getItem("userToken"); // Retrieve the token
+
+  try {
+    const response = await fetch(`${API_URL}/users/${userId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+      },
+      body: JSON.stringify(updatedData),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Cập nhật người dùng thất bại");
+    }
+
+    const data = await response.json();
+    return data; // Return the updated user data from the server
+  } catch (error) {
+    console.error("Update user error:", error);
+    throw error; // Throw error for external handling
+  }
+};
