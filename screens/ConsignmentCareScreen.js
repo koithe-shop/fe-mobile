@@ -164,7 +164,7 @@ export default function ConsignmentCareScreen({ navigation }) {
               <ProductForm
                 genotypes={genotypes}
                 categories={categories}
-                onCreateProduct={handleCreateProduct}
+                onCreateConsignment={handleCreateProduct}
                 onImageUpdate={handleImageUpdate}
                 existingImages={productImages}
                 productData={productData}

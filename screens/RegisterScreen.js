@@ -53,7 +53,7 @@ const RegisterScreen = ({ navigation }) => {
       password,
       phoneNumber,
       address,
-      roleId,
+      // roleId,
     };
 
     // Call the register API here using requestData
